@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import axios from 'axios';
+
 import './App.css';
 
 class App extends Component {
@@ -6,21 +8,18 @@ class App extends Component {
         isConnected: false,
     };
 
+    // call back-end API to retrieve data
     componentDidMount() {
-        this.retrieveTransactions()
-            .then(res => this.setState({ isConnected: res.isConnected }))
-            .catch(err => console.log(err));
+        axios.get('/api')
+            .then(res => {
+                this.setState({
+                    isConnected: res.data.isConnected,
+                });
+            })
+            .catch(error => {
+                console.log(error);
+            })
     }
-
-    retrieveTransactions = async () => {
-        const response = await fetch('/api');
-        const body = await response.json();
-
-        if (response.status !== 200) {
-            throw Error(body.message)
-        }
-        return body;
-    };
 
     render() {
         return (
