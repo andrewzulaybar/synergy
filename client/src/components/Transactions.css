@@ -1,0 +1,9 @@
+/* table header */
+.ant-table-thead > tr > th {
+    background-color: white;
+}
+
+/* list of transactions */
+.transactions-list {
+    text-align: left;
+}

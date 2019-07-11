@@ -1,29 +1,12 @@
-import axios from 'axios';
-import {Layout, Row} from 'antd';
+import { Layout, Row } from 'antd';
 import React, { Component } from 'react';
 import "antd/dist/antd.css";
 
 import './Home.css';
-import Summary from "../Summary";
+import Summary from "../summary/Summary";
+import Transactions from "../transactions/Transactions";
 
 class Home extends Component {
-    state = {
-        isConnected: false
-    };
-
-    // call back-end API to retrieve data
-    componentDidMount() {
-        axios.get('/api')
-            .then(res => {
-                this.setState({
-                    isConnected: res.data.isConnected,
-                });
-            })
-            .catch(error => {
-                console.log(error);
-            })
-    }
-
     render() {
         return (
             <Layout style={{ minHeight: '100vh' }}>
@@ -52,6 +35,7 @@ class Home extends Component {
                                     amount={150.00}
                                 />
                             </Row>
+                            <Transactions transactionSpan={16} />
                         </div>
                     </Layout.Content>
                 </Layout>
