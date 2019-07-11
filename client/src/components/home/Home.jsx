@@ -1,9 +1,10 @@
 import axios from 'axios';
-import { Layout } from 'antd';
+import {Layout, Row} from 'antd';
 import React, { Component } from 'react';
 import "antd/dist/antd.css";
 
 import './Home.css';
+import Summary from "../Summary";
 
 class Home extends Component {
     state = {
@@ -27,13 +28,30 @@ class Home extends Component {
         return (
             <Layout style={{ minHeight: '100vh' }}>
                 <Layout style={{ marginLeft: 200 }}>
-                    <Layout.Content style={{ margin: '24px 24px 24px', overflow: 'initial' }}>
+                    <Layout.Content style={{ padding: 16, overflow: 'initial' }}>
                         <div className="App">
-                            <header className="App-header">
-                                {this.state.isConnected
-                                    ? "Express back-end is connected!"
-                                    : "Express back-end is not connected"}
-                            </header>
+                            <Row type="flex" justify="center" gutter={16}>
+                                <Summary
+                                    percent={104}
+                                    title="Weekly Expenses"
+                                    amount={250.39}
+                                />
+                                <Summary
+                                    percent={-16}
+                                    title="Monthly Expenses"
+                                    amount={1503.72}
+                                />
+                                <Summary
+                                    percent={0}
+                                    title="Monthly Income"
+                                    amount={840.26}
+                                />
+                                <Summary
+                                    percent={73}
+                                    title="Monthly Savings"
+                                    amount={150.00}
+                                />
+                            </Row>
                         </div>
                     </Layout.Content>
                 </Layout>
