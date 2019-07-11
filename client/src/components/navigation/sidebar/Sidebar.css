@@ -1,0 +1,15 @@
+/* sidebar */
+.sidebar {
+    background-color: white;
+    height: 100vh;
+    left: 0;
+    overflow: auto;
+    position: fixed;
+}
+
+/* sidebar links */
+.nav-text {
+    letter-spacing: 1px;
+    margin-left: 10px;
+    text-transform: uppercase;
+}
