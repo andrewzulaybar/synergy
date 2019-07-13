@@ -1,6 +1,5 @@
 import { Col, Table, Tag, Typography } from 'antd';
 import { green, red } from '@ant-design/colors';
-import axios from "axios";
 import React, { Component } from 'react';
 
 import './Transactions.css'
@@ -58,14 +57,16 @@ const columns = [
         dataIndex: schema[3].toLowerCase(),
         render: tags => (
             <span>
-                {tags.map(tag => {
-                    let color = tagColors[tag];
-                    return (
-                        <Tag color={color} key={tag}>
-                            {tag.toUpperCase()}
-                        </Tag>
-                    );
-                })}
+                {(tags)
+                    ? tags.map(tag => {
+                        let color = tagColors[tag];
+                        return (
+                            <Tag color={color} key={tag}>
+                                {tag.toUpperCase()}
+                            </Tag>
+                        );
+                    })
+                    : []}
             </span>
         ),
     },
@@ -76,61 +77,9 @@ const columns = [
     },
 ];
 
-const transactions = [
-    {
-        id: 1,
-        amount: '-20',
-        description: 'H&M',
-        method: 'Cash',
-        tags: ['clothes'],
-        date: 'Jan 20, 2019'
-    },
-    {
-        id: 2,
-        amount: '200',
-        description: 'Work',
-        method: 'Debit',
-        tags: ['income'],
-        date: 'Mar 29, 2019'
-    },
-    {
-        id: 3,
-        amount: '-50',
-        description: 'Food',
-        method: 'Mastercard',
-        tags: ['restaurants'],
-        date: 'Apr 20, 2019'
-    },
-    {
-        id: 4,
-        amount: '-8',
-        description: 'Origins',
-        method: 'Cash',
-        tags: ['skincare', 'travel'],
-        date: 'Dec 17, 2018'
-    },
-];
-
 class Transactions extends Component {
-    state = {
-        isConnected: false
-    };
-
-    // call back-end API to retrieve data
-    componentDidMount() {
-        axios.get('/api')
-            .then(res => {
-                this.setState({
-                    isConnected: res.data.isConnected,
-                });
-            })
-            .catch(error => {
-                console.log(error);
-            })
-    }
-
     render() {
-        const { transactionSpan } = this.props;
+        const { transactions, transactionSpan } = this.props;
 
         return (
             <Col className="transactions-list" {...transactionSpan}>

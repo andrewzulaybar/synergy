@@ -1,4 +1,12 @@
-import { Button, Col, DatePicker, Form, Input, Select, Typography } from 'antd';
+import {
+    Button,
+    Col,
+    DatePicker,
+    Form,
+    Input,
+    Select,
+    Typography
+} from 'antd';
 import React, { Component } from 'react';
 
 import './AddTransaction.css';
@@ -6,15 +14,25 @@ import './AddTransaction.css';
 class AddTransaction extends Component {
     handleSubmit = e => {
         e.preventDefault();
-        this.props.form.validateFieldsAndScroll((err, values) => {
-            if (!err) {
-                console.log('Received values of form: ', values);
-            }
-        });
+
+        const { clickHandler } = this.props;
+        this.props.form.validateFields(
+            (err, values) => {
+                if (!err) {
+                    const transaction = {
+                        'amount': values.amount,
+                        'description': values.description,
+                        'method': values.method,
+                        'date': values.date.format('ll'),
+                        'tags': values.tags || [],
+                    };
+                    clickHandler(transaction)
+                }
+            });
     };
 
     render() {
-        const { addTransactionSpan } = this.props;
+        const { addTransactionSpan, clickHandler } = this.props;
         const { getFieldDecorator } = this.props.form;
 
         const formItemLayout = {
@@ -112,7 +130,10 @@ class AddTransaction extends Component {
                     {date}
                     {tags}
                     <Form.Item wrapperCol={{ span: 24 }}>
-                        <Button type="primary" htmlType="submit">
+                        <Button
+                            htmlType="submit"
+                            type="primary"
+                        >
                             Submit
                         </Button>
                     </Form.Item>

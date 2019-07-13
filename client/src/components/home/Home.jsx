@@ -1,4 +1,5 @@
 import { Layout, Row } from 'antd';
+import axios from "axios";
 import React, { Component } from 'react';
 import "antd/dist/antd.css";
 
@@ -8,6 +9,74 @@ import Summary from "../summary/Summary";
 import Transactions from "../transactions/Transactions";
 
 class Home extends Component {
+    state = {
+        isConnected: false,
+        transactions: [
+            {
+                id: 1,
+                amount: '-20',
+                description: 'H&M',
+                method: 'Cash',
+                tags: ['clothes'],
+                date: 'Jan 20, 2019'
+            },
+            {
+                id: 2,
+                amount: '200',
+                description: 'Work',
+                method: 'Debit',
+                tags: ['income'],
+                date: 'Mar 29, 2019'
+            },
+            {
+                id: 3,
+                amount: '-50',
+                description: 'Food',
+                method: 'Mastercard',
+                tags: ['restaurants'],
+                date: 'Apr 20, 2019'
+            },
+            {
+                id: 4,
+                amount: '-8',
+                description: 'Origins',
+                method: 'Cash',
+                tags: ['skincare', 'travel'],
+                date: 'Dec 17, 2018'
+            },
+        ]
+    };
+
+    // call back-end API to retrieve data
+    componentDidMount() {
+        axios.get('/api')
+            .then(res => {
+                this.setState({
+                    isConnected: res.data.isConnected,
+                });
+            })
+            .catch(error => {
+                console.log(error);
+            })
+    }
+
+    // handler for adding transaction
+    handleAdd = (transaction) => {
+        const count = this.state.transactions.length;
+        const newData = {
+            id: count + 1,
+            amount: transaction.amount,
+            description: transaction.description,
+            method: transaction.method,
+            tags: transaction.tags,
+            date: transaction.date
+        };
+
+        this.setState({
+            transactions: [...this.state.transactions, newData]
+        });
+    };
+
     render() {
         return (
             <Layout style={{ minHeight: '100vh' }}>
@@ -37,8 +106,14 @@ class Home extends Component {
                                 />
                             </Row>
                             <Row type="flex" justify="space-around">
-                                <Transactions transactionSpan={{ xs: 24, sm: 24, md: 24, lg: 16 }} />
-                                <AddTransaction addTransactionSpan={{ xs: 24, sm: 18, md: 12, lg: 6 }} />
+                                <Transactions
+                                    transactions={this.state.transactions}
+                                    transactionSpan={{ xs: 24, sm: 24, md: 24, lg: 16 }}
+                                />
+                                <AddTransaction
+                                    addTransactionSpan={{ xs: 24, sm: 18, md: 12, lg: 6 }}
+                                    clickHandler={this.handleAdd}
+                                />
                             </Row>
                         </div>
                     </Layout.Content>
