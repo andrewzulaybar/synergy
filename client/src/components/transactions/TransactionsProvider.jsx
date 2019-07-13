@@ -10,49 +10,15 @@ export const TransactionsContext = React.createContext(defaultValue);
 
 class TransactionsProvider extends Component {
     state = {
-        isConnected: false,
-        transactions: [
-            {
-                id: 1,
-                amount: '-20',
-                description: 'H&M',
-                method: 'Cash',
-                tags: ['clothes'],
-                date: 'Jan 20, 2019'
-            },
-            {
-                id: 2,
-                amount: '200',
-                description: 'Work',
-                method: 'Debit',
-                tags: ['income'],
-                date: 'Mar 29, 2019'
-            },
-            {
-                id: 3,
-                amount: '-50',
-                description: 'Food',
-                method: 'Mastercard',
-                tags: ['restaurants'],
-                date: 'Apr 20, 2019'
-            },
-            {
-                id: 4,
-                amount: '-8',
-                description: 'Origins',
-                method: 'Cash',
-                tags: ['skincare', 'travel'],
-                date: 'Dec 17, 2018'
-            },
-        ]
+        transactions: [],
     };
 
     // call back-end API to retrieve data
     componentDidMount() {
-        axios.get('/api')
+        axios.get('/api/transactions')
             .then(res => {
                 this.setState({
-                    isConnected: res.data.isConnected,
+                    transactions: res.data.transactions
                 });
             })
             .catch(error => {
