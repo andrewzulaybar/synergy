@@ -6,4 +6,5 @@
 /* list of transactions */
 .transactions-list {
     text-align: left;
+    margin-bottom: 16px;
 }

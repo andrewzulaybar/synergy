@@ -1,9 +1,9 @@
-import { Col, Row, Table, Tag, Typography } from 'antd';
+import { Col, Table, Tag, Typography } from 'antd';
 import { green, red } from '@ant-design/colors';
 import axios from "axios";
 import React, { Component } from 'react';
 
-import '../Transactions.css'
+import './Transactions.css'
 
 const schema = [
     'Amount',
@@ -133,22 +133,21 @@ class Transactions extends Component {
         const { transactionSpan } = this.props;
 
         return (
-            <Row type="flex" justify="center">
-                <Col className="transactions-list" span={transactionSpan}>
-                    <Typography.Title level={2}>
-                        Transactions
-                    </Typography.Title>
-                    <Table
-                        className="transactions"
-                        columns={columns}
-                        dataSource={transactions}
-                        pagination={false}
-                        rowKey={(record) => {
-                            return record.id;
-                        }}
-                    />
-                </Col>
-            </Row>
+            <Col className="transactions-list" {...transactionSpan}>
+                <Typography.Title level={2}>
+                    Transactions
+                </Typography.Title>
+                <Table
+                    className="transactions"
+                    columns={columns}
+                    dataSource={transactions}
+                    pagination={false}
+                    rowKey={(record) => {
+                        return record.id;
+                    }}
+                    size="middle"
+                />
+            </Col>
         );
     }
 }

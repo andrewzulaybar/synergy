@@ -1,0 +1,14 @@
+/* add transaction */
+.add-transaction {
+    text-align: left;
+}
+
+/* add transaction form items */
+.add-transaction > .ant-form > .ant-row {
+    margin-bottom: 0;
+}
+
+/* date picker */
+.ant-calendar-picker {
+    width: 100%;
+}

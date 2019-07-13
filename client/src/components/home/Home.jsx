@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import "antd/dist/antd.css";
 
 import './Home.css';
+import AddTransaction from '../transactions/AddTransaction';
 import Summary from "../summary/Summary";
 import Transactions from "../transactions/Transactions";
 
@@ -35,7 +36,10 @@ class Home extends Component {
                                     amount={150.00}
                                 />
                             </Row>
-                            <Transactions transactionSpan={16} />
+                            <Row type="flex" justify="space-around">
+                                <Transactions transactionSpan={{ xs: 24, sm: 24, md: 24, lg: 16 }} />
+                                <AddTransaction addTransactionSpan={{ xs: 24, sm: 18, md: 12, lg: 6 }} />
+                            </Row>
                         </div>
                     </Layout.Content>
                 </Layout>
