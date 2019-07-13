@@ -9,13 +9,24 @@ import {
 } from 'antd';
 import React, { Component } from 'react';
 
+import { TransactionsContext } from './TransactionsProvider';
 import './AddTransaction.css';
+
+const WithContext = (Component) => {
+    return (props) => (
+        <TransactionsContext.Consumer>
+            {(context) =>
+                <Component {...props} context={context} />
+            }
+        </TransactionsContext.Consumer>
+    )
+};
 
 class AddTransaction extends Component {
     handleSubmit = e => {
         e.preventDefault();
 
-        const { clickHandler } = this.props;
+        const { handleAdd } = this.props.context;
         this.props.form.validateFields(
             (err, values) => {
                 if (!err) {
@@ -26,13 +37,13 @@ class AddTransaction extends Component {
                         'date': values.date.format('ll'),
                         'tags': values.tags || [],
                     };
-                    clickHandler(transaction)
+                    handleAdd(transaction)
                 }
             });
     };
 
     render() {
-        const { addTransactionSpan, clickHandler } = this.props;
+        const { addTransactionSpan } = this.props;
         const { getFieldDecorator } = this.props.form;
 
         const formItemLayout = {
@@ -130,10 +141,7 @@ class AddTransaction extends Component {
                     {date}
                     {tags}
                     <Form.Item wrapperCol={{ span: 24 }}>
-                        <Button
-                            htmlType="submit"
-                            type="primary"
-                        >
+                        <Button htmlType="submit" type="primary">
                             Submit
                         </Button>
                     </Form.Item>
@@ -145,5 +153,4 @@ class AddTransaction extends Component {
 
 AddTransaction = Form.create({ name: 'add-transaction' })(AddTransaction);
 
-export default AddTransaction;
-          
+export default WithContext(AddTransaction);

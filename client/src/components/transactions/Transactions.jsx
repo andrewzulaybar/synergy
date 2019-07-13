@@ -3,6 +3,7 @@ import { green, red } from '@ant-design/colors';
 import React, { Component } from 'react';
 
 import './Transactions.css'
+import { TransactionsContext } from './TransactionsProvider';
 
 const schema = [
     'Amount',
@@ -79,23 +80,27 @@ const columns = [
 
 class Transactions extends Component {
     render() {
-        const { transactions, transactionSpan } = this.props;
+        const { transactionSpan } = this.props;
 
         return (
             <Col className="transactions-list" {...transactionSpan}>
                 <Typography.Title level={2}>
                     Transactions
                 </Typography.Title>
-                <Table
-                    className="transactions"
-                    columns={columns}
-                    dataSource={transactions}
-                    pagination={false}
-                    rowKey={(record) => {
-                        return record.id;
-                    }}
-                    size="middle"
-                />
+                <TransactionsContext.Consumer>
+                    {(context) => (
+                        <Table
+                            className="transactions"
+                            columns={columns}
+                            dataSource={context.transactions}
+                            pagination={false}
+                            rowKey={(record) => {
+                                return record.id;
+                            }}
+                            size="middle"
+                        />
+                    )}
+                </TransactionsContext.Consumer>
             </Col>
         );
     }
