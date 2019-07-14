@@ -13,8 +13,21 @@ class TransactionsProvider extends Component {
         transactions: [],
     };
 
-    // call back-end API to retrieve data
-    componentDidMount() {
+    // helper for creating new transaction on server
+    _createNewTransaction = (transaction, listOfTransactions) => {
+        axios.post('/api/transactions', transaction)
+            .then(res => {
+                this.setState({
+                    transactions: [...listOfTransactions, res.data]
+                });
+            })
+            .catch(error => {
+                console.log(error);
+            })
+    };
+
+    // helper for retrieving transactions
+    _getTransactions = () => {
         axios.get('/api/transactions')
             .then(res => {
                 this.setState({
@@ -24,23 +37,24 @@ class TransactionsProvider extends Component {
             .catch(error => {
                 console.log(error);
             })
-    }
+    };
+
+    // call back-end API to retrieve data
+    componentDidMount() {
+        this._getTransactions();
+    };
 
     // handler for adding transaction
     handleAdd = (transaction) => {
-        const count = this.state.transactions.length;
         const newData = {
-            id: count + 1,
+            id: this.state.transactions.length + 1,
             amount: transaction.amount,
             description: transaction.description,
             method: transaction.method,
             tags: transaction.tags,
             date: transaction.date
         };
-
-        this.setState({
-            transactions: [...this.state.transactions, newData]
-        });
+        this._createNewTransaction(newData, this.state.transactions);
     };
 
     render() {

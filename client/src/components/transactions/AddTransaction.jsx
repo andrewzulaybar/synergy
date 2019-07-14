@@ -60,7 +60,7 @@ class AddTransaction extends Component {
                             message: 'Please enter an amount!',
                         },
                         {
-                            pattern: /^[0-9]+(\.[0-9]{2})?$/,
+                            pattern: /^(-?[0-9])+(\.[0-9]{2})?$/,
                             message: 'Please enter a valid amount!',
                         }
                     ],

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const transactions = [
+let transactions = [
     {
         id: 1,
         amount: '-20',
@@ -39,6 +39,20 @@ const transactions = [
 /* GET list of transactions */
 router.get('/', function (req, res) {
     res.send({ transactions: transactions });
+});
+
+/* POST new transaction */
+router.post('/', function (req, res) {
+    const transaction = {
+        id: req.body.id,
+        amount: req.body.amount,
+        description: req.body.description,
+        method: req.body.method,
+        tags: req.body.tags,
+        date: req.body.date,
+    };
+    transactions.push(transaction);
+    res.send(transaction);
 });
 
 module.exports = router;

@@ -21,62 +21,55 @@ const tagColors = {
     'travel': 'orange',
 };
 
-const columns = [
-    {
-        title: schema[0],
-        dataIndex: schema[0].toLowerCase(),
-        key: schema[0].toLowerCase(),
-        render: amount => {
-            if (amount < 0) {
-                return (
-                    <div style={{ color: red[4] }}>
-                        - ${-amount}
-                    </div>
-                );
-            } else {
-                return (
-                    <div style={{ color: green[3] }}>
-                        + ${amount}
-                    </div>
-                );
-            }
+const columns = initializeColumns();
+function initializeColumns() {
+    let columns = [];
+    for (let i = 0; i < schema.length; i++) {
+        const item = {
+            title: schema[i],
+            dataIndex: schema[i].toLowerCase(),
+            key: schema[i].toLowerCase(),
+        };
+        columns.push(item);
+    }
+
+    // format amount
+    let amountIndex = schema.indexOf('Amount');
+    columns[amountIndex].render = amount => {
+        if (amount < 0) {
+            return (
+                <div style={{color: red[4]}}>
+                    - ${-amount}
+                </div>
+            );
+        } else {
+            return (
+                <div style={{color: green[3]}}>
+                    + ${amount}
+                </div>
+            );
         }
-    },
-    {
-        title: schema[1],
-        dataIndex: schema[1].toLowerCase(),
-        key: schema[1].toLowerCase(),
-    },
-    {
-        title: schema[2],
-        dataIndex: schema[2].toLowerCase(),
-        key: schema[2].toLowerCase(),
-    },
-    {
-        title: schema[3],
-        key: schema[3].toLowerCase(),
-        dataIndex: schema[3].toLowerCase(),
-        render: tags => (
-            <span>
-                {(tags)
-                    ? tags.map(tag => {
-                        let color = tagColors[tag];
-                        return (
-                            <Tag color={color} key={tag}>
-                                {tag.toUpperCase()}
-                            </Tag>
-                        );
-                    })
-                    : []}
-            </span>
-        ),
-    },
-    {
-        title: schema[4],
-        dataIndex: schema[4].toLowerCase(),
-        key: schema[4].toLowerCase(),
-    },
-];
+    };
+
+    // format tags
+    let tagsIndex = schema.indexOf('Tags');
+    columns[tagsIndex].render = tags => (
+        <span>
+            {(tags)
+                ? tags.map(tag => {
+                    let color = tagColors[tag];
+                    return (
+                        <Tag color={color} key={tag}>
+                            {tag.toUpperCase()}
+                        </Tag>
+                    );
+                })
+                : []}
+        </span>
+    );
+
+    return columns;
+}
 
 class Transactions extends Component {
     render() {
