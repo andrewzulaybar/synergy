@@ -88,7 +88,7 @@ class Transactions extends Component {
                             dataSource={context.transactions}
                             pagination={false}
                             rowKey={(record) => {
-                                return record.id;
+                                return record._id;
                             }}
                             size="middle"
                         />
