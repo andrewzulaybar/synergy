@@ -1,5 +1,8 @@
 const database = require( './database' );
 
+const db = database.getDb();
+const collectionName = 'transactionsCollection';
+
 /**
  * Retrieves list of transactions from database.
  *
@@ -7,9 +10,8 @@ const database = require( './database' );
  */
 async function retrieveTransactions() {
   let transactions = [];
-  const db = database.getDb();
 
-  await db.collection("transactionsCollection").aggregate(
+  await db.collection(collectionName).aggregate(
     [
       {
         $project: {
@@ -21,7 +23,7 @@ async function retrieveTransactions() {
           date: {
             $dateToString: {
               date: '$date',
-              format: '%m-%d-%Y'
+              format: '%Y-%m-%d'
             }
           }
         }
@@ -34,4 +36,15 @@ async function retrieveTransactions() {
   return transactions;
 }
 
-module.exports = retrieveTransactions;
+/**
+ * Adds transaction to database and returns assigned id.
+ *
+ * @param {Object} transaction - The transaction to be added.
+ * @returns {Promise<ObjectId>} - ObjectId of the newly created transaction.
+ */
+async function addNewTransaction(transaction) {
+  const doc = await db.collection(collectionName).insertOne(transaction);
+  return doc.insertedId;
+}
+
+module.exports = { retrieveTransactions, addNewTransaction };

@@ -1,5 +1,5 @@
 const express = require('express');
-const retrieveTransactions = require('../database/transactions');
+const { retrieveTransactions, addNewTransaction } = require('../database/transactions');
 
 const router = express.Router();
 
@@ -7,12 +7,14 @@ const router = express.Router();
  * GET list of transactions.
  */
 router.get('/', (req, res) => {
-  retrieveTransactions().then((transactions) => {
-    res.send({ transactions: transactions });
-  }).catch((error) => {
-    res.send({ transactions: [] });
-    console.log(error)
-  });
+  retrieveTransactions()
+    .then((transactions) => {
+      res.send({ transactions: transactions });
+    })
+    .catch((error) => {
+      res.send({ transactions: [] });
+      console.log(error);
+    });
 });
 
 
@@ -21,14 +23,26 @@ router.get('/', (req, res) => {
  */
 router.post('/', (req, res) => {
   let transaction = {
-    id: req.body.id,
     amount: req.body.amount,
     description: req.body.description,
     method: req.body.method,
     tags: req.body.tags,
-    date: req.body.date,
+    date: new Date(req.body.date),
   };
-  res.send(transaction);
+
+  addNewTransaction(transaction)
+    .then((objectId) => {
+      // assign transaction id
+      transaction._id = objectId;
+      // format display date: 'YYYY-MM-DD'
+      transaction.date = transaction.date
+        .toISOString()
+        .split('T')[0];
+      res.send(transaction);
+    })
+    .catch((error) => {
+      console.log(error);
+    })
 });
 
 module.exports = router;

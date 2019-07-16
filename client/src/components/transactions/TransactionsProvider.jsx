@@ -47,7 +47,6 @@ class TransactionsProvider extends Component {
     // handler for adding transaction
     handleAdd = (transaction) => {
         const newData = {
-            id: this.state.transactions.length + 1,
             amount: transaction.amount,
             description: transaction.description,
             method: transaction.method,
