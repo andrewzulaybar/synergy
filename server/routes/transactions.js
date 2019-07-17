@@ -1,5 +1,9 @@
 const express = require('express');
-const { retrieveTransactions, addNewTransaction } = require('../database/transactions');
+const {
+  addNewTransaction,
+  deleteTransactions,
+  retrieveTransactions,
+} = require('../database/transactions');
 
 const router = express.Router();
 
@@ -43,6 +47,21 @@ router.post('/', (req, res) => {
     .catch((error) => {
       console.log(error);
     })
+});
+
+/**
+ * DELETE list of transactions.
+ */
+router.delete('/', (req, res) => {
+  let transactionIDs = req.body.transactionIDs;
+
+  deleteTransactions(transactionIDs)
+    .then((IDs) => {
+      res.send({ transactionIDs: IDs });
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 });
 
 module.exports = router;
