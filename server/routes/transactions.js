@@ -2,6 +2,7 @@ const express = require('express');
 const {
   addNewTransaction,
   deleteTransactions,
+  retrieveSummary,
   retrieveTransactions,
 } = require('../database/transactions');
 
@@ -12,11 +13,29 @@ const router = express.Router();
  */
 router.get('/', (req, res) => {
   retrieveTransactions()
-    .then((transactions) => {
+    .then(transactions => {
       res.send({ transactions: transactions });
     })
-    .catch((error) => {
+    .catch(error => {
       res.send({ transactions: [] });
+      console.log(error);
+    });
+});
+
+/**
+ * GET summary statistics.
+ */
+router.get('/summary', (req, res) => {
+  let start = null, end = null;
+  if (req.query.start && req.query.end) {
+    start = new Date(req.query.start);
+    end = new Date(req.query.end);
+  }
+  retrieveSummary(start, end)
+    .then(summary => {
+      res.send({ summary: summary });
+    })
+    .catch(error => {
       console.log(error);
     });
 });
@@ -35,7 +54,7 @@ router.post('/', (req, res) => {
   };
 
   addNewTransaction(transaction)
-    .then((objectId) => {
+    .then(objectId => {
       // assign transaction id
       transaction._id = objectId;
       // format display date: 'YYYY-MM-DD'
@@ -44,7 +63,7 @@ router.post('/', (req, res) => {
         .split('T')[0];
       res.send(transaction);
     })
-    .catch((error) => {
+    .catch(error => {
       console.log(error);
     })
 });
@@ -56,10 +75,10 @@ router.delete('/', (req, res) => {
   let transactionIDs = req.body.transactionIDs;
 
   deleteTransactions(transactionIDs)
-    .then((IDs) => {
+    .then(IDs => {
       res.send({ transactionIDs: IDs });
     })
-    .catch((error) => {
+    .catch(error => {
       console.log(error);
     });
 });

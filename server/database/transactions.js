@@ -11,8 +11,7 @@ const collectionName = 'transactionsCollection';
  * @returns {Promise<Array>} - The user's list of transactions.
  */
 async function retrieveTransactions() {
-  let transactions = [];
-  await db.collection(collectionName).aggregate(
+  return await db.collection(collectionName).aggregate(
     [
       {
         $project: {
@@ -30,10 +29,55 @@ async function retrieveTransactions() {
         }
       }
     ]
-  ).forEach((transaction) => {
-    transactions.push(transaction);
-  });
-  return transactions;
+  ).toArray();
+}
+
+/**
+ * If start or end is null, then retrieves summary for all transactions.
+ * Otherwise, retrieves summary for transactions between start and end date inclusive.
+ *
+ * @param {Date} start - The start date for the summary.
+ * @param {Date} end - The end date for the summary.
+ * @returns {Promise<Object>} - Summary statistics for the given time period.
+ */
+async function retrieveSummary(start, end) {
+  let summary = [];
+  // if both are null, request was sent to /summary
+  if (start == null && end == null) {
+    summary = await db.collection(collectionName).aggregate(
+      [
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+            sum: { $sum: { $convert: { input: '$amount', to: 'double' } } },
+          }
+        }
+      ]
+    ).toArray();
+  }
+  // if request was sent with query params to /summary?start={start}&end={end}
+  else if (start && end && start <= end) {
+    summary = await db.collection(collectionName).aggregate(
+      [
+        {
+          $match: {
+            date: { $gte: start, $lte: end }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+            sum: { $sum: { $convert: { input: '$amount', to: 'double' } } },
+          }
+        }
+      ]
+    ).toArray();
+  }
+  return (summary.length !== 0)
+    ? summary[0]
+    : { _id: null, sum: 0 };
 }
 
 /**
@@ -71,5 +115,6 @@ async function deleteTransactions(transactionIDs) {
 module.exports = {
   addNewTransaction,
   deleteTransactions,
+  retrieveSummary,
   retrieveTransactions
 };
