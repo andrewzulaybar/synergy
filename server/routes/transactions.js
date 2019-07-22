@@ -26,12 +26,13 @@ router.get('/', (req, res) => {
  * GET summary statistics.
  */
 router.get('/summary', (req, res) => {
-  let start = null, end = null;
-  if (req.query.start && req.query.end) {
+  let type = null, start = null, end = null;
+  if (req.query.type && req.query.start && req.query.end) {
+    type = req.query.type;
     start = new Date(req.query.start);
     end = new Date(req.query.end);
   }
-  retrieveSummary(start, end)
+  retrieveSummary(type, start, end)
     .then(summary => {
       res.send({ summary: summary });
     })

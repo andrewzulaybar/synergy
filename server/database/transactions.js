@@ -36,14 +36,15 @@ async function retrieveTransactions() {
  * If start or end is null, then retrieves summary for all transactions.
  * Otherwise, retrieves summary for transactions between start and end date inclusive.
  *
+ * @param {string} type - The type of summary to retrieve: 'expenses' or 'income'.
  * @param {Date} start - The start date for the summary.
  * @param {Date} end - The end date for the summary.
  * @returns {Promise<Object>} - Summary statistics for the given time period.
  */
-async function retrieveSummary(start, end) {
+async function retrieveSummary(type, start, end) {
   let summary = [];
-  // if both are null, request was sent to /summary
-  if (start == null && end == null) {
+  // if all are null, request was sent to /summary
+  if (type === null && start === null && end === null) {
     summary = await db.collection(collectionName).aggregate(
       [
         {
@@ -56,12 +57,16 @@ async function retrieveSummary(start, end) {
       ]
     ).toArray();
   }
-  // if request was sent with query params to /summary?start={start}&end={end}
-  else if (start && end && start <= end) {
+  // if request was sent with query params to /summary?type={type}&start={start}&end={end}
+  else if (type && start && end && start <= end) {
+    let amount;
+    if (type === 'expenses') amount = { $lt: '0' };
+    else if (type === 'income') amount = { $gt: '0' };
     summary = await db.collection(collectionName).aggregate(
       [
         {
           $match: {
+            amount: amount,
             date: { $gte: start, $lte: end }
           }
         },

@@ -32,9 +32,9 @@ class Home extends Component {
                           amount={context.state.monthlyExpenses}
                         />
                         <Summary
-                          percent={0}
+                          percent={context.state.monthlyIncomePercentChange}
                           title="Monthly Income"
-                          amount={840.26}
+                          amount={context.state.monthlyIncome}
                         />
                         <Summary
                           percent={73}

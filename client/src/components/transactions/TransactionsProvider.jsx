@@ -10,6 +10,8 @@ const defaultValue = {
     weeklyExpensesPercentChange: 0,
     monthlyExpenses: 0,
     monthlyExpensesPercentChange: 0,
+    monthlyIncome: 0,
+    monthlyIncomePercentChange: 0,
   },
   handleAdd: null,
   handleDelete: null,
@@ -24,6 +26,8 @@ class TransactionsProvider extends Component {
     weeklyExpensesPercentChange: 0,
     monthlyExpenses: 0,
     monthlyExpensesPercentChange: 0,
+    monthlyIncome: 0,
+    monthlyIncomePercentChange: 0,
   };
 
   componentDidMount() {
@@ -57,36 +61,48 @@ class TransactionsProvider extends Component {
       .catch(error => console.log(error))
   };
 
-  // retrieves sum of weekly expenses
-  async _getPeriodExpenses(start, end) {
-    let periodExpenses = 0;
-    await axios.get('/api/transactions/summary?start=' + start + '&end=' + end)
-      .then(res => {
-        if (res.data.summary.sum < 0)
-          periodExpenses = -res.data.summary.sum;
-      })
+  // retrieves period summary according to type (expenses or income)
+  async _getPeriodSummary(start, end, type) {
+    let total = 0;
+    await axios.get('/api/transactions/summary?type=' + type + '&start=' + start + '&end=' + end)
+      .then(res => total = Math.abs(res.data.summary.sum))
       .catch(error => console.log(error));
-    return periodExpenses;
+    return total;
   };
 
   // updates summary cards
   _updateSummary() {
     this._updateWeeklyExpenses();
     this._updateMonthlyExpenses();
+    this._updateMonthlyIncome();
   }
 
-  // helper for retrieving expenses for current period and previous period
-  _retrievePeriodExpenses(lastPeriodStart, thisPeriodStart, thisPeriodEnd, update) {
-    this._getPeriodExpenses(thisPeriodStart, thisPeriodEnd)
-      .then(thisPeriodExpenses =>
-        this._getPeriodExpenses(lastPeriodStart, thisPeriodStart)
-          .then(lastPeriodExpenses =>
-            update(thisPeriodExpenses, lastPeriodExpenses)
+  // helper for retrieving summary for current period and previous period
+  _retrievePeriodSummary(lastPeriodStart, thisPeriodStart, thisPeriodEnd, type) {
+    let summaryType = type.toLowerCase().includes('income') ? 'income' : 'expenses';
+    this._getPeriodSummary(thisPeriodStart, thisPeriodEnd, summaryType)
+      .then(thisPeriodTotal =>
+        this._getPeriodSummary(lastPeriodStart, thisPeriodStart, summaryType)
+          .then(lastPeriodTotal =>
+            this._updateState(thisPeriodTotal, lastPeriodTotal, type)
           )
           .catch(error => console.log(error))
       )
       .catch(error => console.log(error))
   }
+
+  // helper for updating state
+  _updateState = (currentPeriodTotal, previousPeriodTotal, type) => {
+    let typePercentChange = type + 'PercentChange';
+    this.setState({
+      [type]: currentPeriodTotal.toFixed(2),
+      [typePercentChange]:
+        Math.round((previousPeriodTotal !== 0)
+          ? (currentPeriodTotal - previousPeriodTotal) / previousPeriodTotal * 100
+          : currentPeriodTotal
+        )
+    });
+  };
 
   // updates weekly expenses and percent change
   _updateWeeklyExpenses() {
@@ -94,20 +110,8 @@ class TransactionsProvider extends Component {
     let thisWeekStart = createDate(7);
     let lastWeekStart = createDate(14);
 
-    this._retrievePeriodExpenses(lastWeekStart, thisWeekStart, end, this._updateStateWeeklyExpenses);
+    this._retrievePeriodSummary(lastWeekStart, thisWeekStart, end, 'weeklyExpenses');
   }
-
-  // helper for updating state weekly expenses and percent change
-  _updateStateWeeklyExpenses = (thisWeekExpenses, lastWeekExpenses) => {
-    this.setState({
-      weeklyExpenses: thisWeekExpenses.toFixed(2),
-      weeklyExpensesPercentChange:
-        Math.round((lastWeekExpenses !== 0)
-          ? (thisWeekExpenses - lastWeekExpenses) / lastWeekExpenses * 100
-          : thisWeekExpenses
-        )
-    });
-  };
 
   // updates monthly expenses and percent change
   _updateMonthlyExpenses() {
@@ -117,20 +121,19 @@ class TransactionsProvider extends Component {
     let thisMonthStart = formatDate(new Date(today.getFullYear(), today.getMonth(), 1));
     let lastMonthStart = formatDate(new Date(today.getFullYear(), today.getMonth() - 1, 1));
 
-    this._retrievePeriodExpenses(lastMonthStart, thisMonthStart, end, this._updateStateMonthlyExpenses);
+    this._retrievePeriodSummary(lastMonthStart, thisMonthStart, end, 'monthlyExpenses');
   }
 
-  // helper for updating state monthly expenses and percent change
-  _updateStateMonthlyExpenses = (thisMonthExpenses, lastMonthExpenses) => {
-    this.setState({
-      monthlyExpenses: thisMonthExpenses.toFixed(2),
-      monthlyExpensesPercentChange:
-        Math.round((lastMonthExpenses !== 0)
-          ? (thisMonthExpenses - lastMonthExpenses) / lastMonthExpenses * 100
-          : thisMonthExpenses
-        )
-    });
-  };
+  // updates monthly income and percent change
+  _updateMonthlyIncome() {
+    let today = new Date();
+
+    let end = formatDate(today);
+    let thisMonthStart = formatDate(new Date(today.getFullYear(), today.getMonth(), 1));
+    let lastMonthStart = formatDate(new Date(today.getFullYear(), today.getMonth() - 1, 1));
+
+    this._retrievePeriodSummary(lastMonthStart, thisMonthStart, end, 'monthlyIncome');
+  }
 
   // helper for creating new transaction on server
   _createNewTransaction(transaction, listOfTransactions) {
