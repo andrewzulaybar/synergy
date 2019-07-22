@@ -2,8 +2,7 @@ import { Button, Col, Table, Tag, Typography } from 'antd';
 import { green, red } from '@ant-design/colors';
 import React, { Component } from 'react';
 
-import './Transactions.css'
-import { TransactionsContext } from './TransactionsProvider';
+import './Transactions.css';
 
 const schema = [
   'Amount',
@@ -71,16 +70,6 @@ function initializeColumns() {
   return columns;
 }
 
-const WithContext = (Component) => {
-  return (props) => (
-    <TransactionsContext.Consumer>
-      {(context) =>
-        <Component {...props} context={context} />
-      }
-    </TransactionsContext.Consumer>
-  )
-};
-
 class Transactions extends Component {
   state = {
     showButton: false,
@@ -90,13 +79,11 @@ class Transactions extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
 
-    const { handleDelete } = this.props.context;
-    handleDelete(this.state.selected);
+    this.props.handleDelete(this.state.selected);
   };
 
   render() {
-    const { transactionSpan } = this.props;
-    const { transactions } = this.props.context;
+    const { transactions, transactionSpan } = this.props;
 
     const rowSelection = {
       onChange: (selected) => {
@@ -140,4 +127,4 @@ class Transactions extends Component {
   }
 }
 
-export default WithContext(Transactions);
+export default Transactions;
