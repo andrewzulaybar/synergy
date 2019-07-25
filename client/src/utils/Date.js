@@ -1,3 +1,5 @@
+const days = { 0: 'Sun', 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat' };
+
 /**
  * Creates date string according to specified format.
  *
@@ -35,4 +37,42 @@ function pad(n) {
   return n < 10 ? '0' + n : n.toString()
 }
 
-export { createDate, formatDate };
+
+/**
+ * Retrieves the days of the week of the past 7 days, including today.
+ *
+ * @returns {Array} - The list of the past 7 days.
+ */
+function getDaysOfWeek() {
+  let today = new Date().getDay();
+  let dates = [], i;
+  for (i = 0; i < 7; i++) {
+    dates.push(days[today]);
+    (today === 0)
+      ? today = Object.keys(days).length - 1
+      : today--;
+  }
+  return dates.reverse();
+}
+
+/**
+ * Retrieves the last eight dates, including today.
+ *
+ * @returns {Array} - The list of the past 8 dates.
+ */
+function getLastEightDays() {
+  let today = new Date();
+  let lastEightDays = [], i;
+  for (i = 0; i < 8; i++) {
+    lastEightDays.push(new Date(today));
+    today.setDate(today.getDate() - 1);
+  }
+  return lastEightDays.reverse();
+}
+
+export {
+  createDate,
+  formatDate,
+  getDaysOfWeek,
+  getLastEightDays
+};

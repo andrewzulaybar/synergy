@@ -2,6 +2,7 @@ import { Layout, Menu } from 'antd';
 import React, { Component } from 'react';
 import { BrowserRouter, NavLink, Route } from "react-router-dom";
 
+import LineGraph from '../summary/LineGraph';
 import "./Overview.css";
 
 class Overview extends Component {
@@ -41,7 +42,7 @@ class Overview extends Component {
                   <NavLink to="/#">Cash</NavLink>
                 </Menu.Item>
               </Menu>
-              <Route exact path="/overview" />
+              <Route exact path="/overview" component={LineGraph} />
             </BrowserRouter>
           </Layout.Content>
         </Layout>
