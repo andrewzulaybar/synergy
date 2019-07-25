@@ -1,0 +1,12 @@
+/* overview page */
+.ant-layout-content {
+    padding: 8px 50px;
+    overflow: initial;
+}
+
+/* top navigation bar */
+.menu {
+    background-color: transparent;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}

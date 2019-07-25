@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import Routes from "./components/navigation/Routes";
+import Router from "./components/navigation/Router";
 import './index.css';
 
-ReactDOM.render(<Routes />, document.getElementById('root'));
+ReactDOM.render(<Router />, document.getElementById('root'));
