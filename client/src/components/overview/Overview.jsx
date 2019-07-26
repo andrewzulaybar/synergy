@@ -2,7 +2,7 @@ import { Layout, Menu } from 'antd';
 import React, { Component } from 'react';
 import { BrowserRouter, NavLink, Route } from "react-router-dom";
 
-import LineGraph from '../summary/LineGraph';
+import LineChart from '../summary/LineChart';
 import "./Overview.css";
 
 class Overview extends Component {
@@ -11,7 +11,7 @@ class Overview extends Component {
   };
 
   handleClick = e => {
-    this.setState({ current: e.key });
+    this.setState({ type: e.key });
   };
 
   render() {
@@ -42,7 +42,7 @@ class Overview extends Component {
                   <NavLink to="/#">Cash</NavLink>
                 </Menu.Item>
               </Menu>
-              <Route exact path="/overview" component={LineGraph} />
+              <Route exact path="/overview" component={LineChart} />
             </BrowserRouter>
           </Layout.Content>
         </Layout>

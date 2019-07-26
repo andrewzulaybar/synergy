@@ -1,4 +1,5 @@
-const days = { 0: 'Sun', 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat' };
+const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /**
  * Creates date string according to specified format.
@@ -37,13 +38,12 @@ function pad(n) {
   return n < 10 ? '0' + n : n.toString()
 }
 
-
 /**
  * Retrieves the days of the week of the past 7 days, including today.
  *
  * @returns {Array} - The list of the past 7 days.
  */
-function getDaysOfWeek() {
+function getDayLabels() {
   let today = new Date().getDay();
   let dates = [], i;
   for (i = 0; i < 7; i++) {
@@ -70,9 +70,41 @@ function getLastEightDays() {
   return lastEightDays.reverse();
 }
 
+/**
+ * Creates labels for the past 5 weeks, including this week.
+ *
+ * @returns {Array} - The list of the past 5 weeks.
+ */
+function getMonthLabels() {
+  let today = new Date();
+  let weeks = [], i;
+  for (i = 0; i < 5; i++) {
+    weeks.push((months[today.getMonth()]) + ' ' + today.getDate());
+    today.setDate(today.getDate() - 7);
+  }
+  return weeks.reverse();
+}
+
+/**
+ * Retrieves the past 6 weeks, including this week.
+ *
+ * @returns {Array} - The list of the past 6 weeks.
+ */
+function getWeeksOfMonth() {
+  let today = new Date();
+  let weeks = [], i;
+  for (i = 0; i < 6; i++) {
+    weeks.push(new Date(today));
+    today.setDate(today.getDate() - 7);
+  }
+  return weeks.reverse();
+}
+
 export {
   createDate,
   formatDate,
-  getDaysOfWeek,
-  getLastEightDays
+  getDayLabels,
+  getLastEightDays,
+  getMonthLabels,
+  getWeeksOfMonth,
 };
