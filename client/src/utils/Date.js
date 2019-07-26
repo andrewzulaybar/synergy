@@ -39,9 +39,9 @@ function pad(n) {
 }
 
 /**
- * Retrieves the days of the week of the past 7 days, including today.
+ * Creates labels for the past 7 days, including today.
  *
- * @returns {Array} - The list of the past 7 days.
+ * @returns {Array} - The labels for the past 7 days.
  */
 function getDayLabels() {
   let today = new Date().getDay();
@@ -73,9 +73,9 @@ function getLastEightDays() {
 /**
  * Creates labels for the past 5 weeks, including this week.
  *
- * @returns {Array} - The list of the past 5 weeks.
+ * @returns {Array} - The labels for the past 5 weeks.
  */
-function getMonthLabels() {
+function getWeekLabels() {
   let today = new Date();
   let weeks = [], i;
   for (i = 0; i < 5; i++) {
@@ -100,11 +100,45 @@ function getWeeksOfMonth() {
   return weeks.reverse();
 }
 
+/**
+ * Creates labels for the past 12 months, including this month.
+ *
+ * @returns {Array} - The labels for the past 12 months.
+ */
+function getMonthLabels() {
+  let today = new Date();
+  let last12Months = [], i;
+  for (i = 0; i < 12; i++) {
+    last12Months.push(months[today.getMonth()]);
+    today.setMonth(today.getMonth() - 1);
+  }
+  return last12Months.reverse();
+}
+
+/**
+ * Retrieves the past 12 months, including this month.
+ *
+ * @returns {Array} - The list of the past 12 months.
+ */
+function getMonthsOfYear() {
+  let today = new Date();
+  today.setMonth(today.getMonth() + 1);
+  let lastYear = [], i;
+  for (i = 0; i < 13; i++) {
+    today.setDate(1);
+    lastYear.push(new Date(today));
+    today.setMonth(today.getMonth() - 1);
+  }
+  return lastYear.reverse();
+}
+
 export {
   createDate,
   formatDate,
   getDayLabels,
   getLastEightDays,
-  getMonthLabels,
+  getWeekLabels,
   getWeeksOfMonth,
+  getMonthLabels,
+  getMonthsOfYear,
 };

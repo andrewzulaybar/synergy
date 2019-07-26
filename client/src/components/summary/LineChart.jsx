@@ -12,8 +12,10 @@ import {
 import {
   getDayLabels,
   getLastEightDays,
+  getWeekLabels,
+  getWeeksOfMonth,
   getMonthLabels,
-  getWeeksOfMonth
+  getMonthsOfYear
 } from '../../utils/Date';
 
 // retrieves expenses for each period from timePeriod[i] to timePeriod[i + 1]
@@ -41,10 +43,40 @@ class LineChart extends Component {
     chart: null,
     weekExpenses: [],
     monthExpenses: [],
+    yearExpenses: [],
+    weekLabels: getDayLabels(),
+    monthLabels: getWeekLabels(),
+    yearLabels: getMonthLabels(),
   };
 
   componentDidMount() {
-    this.displayChart('week');
+    getExpenses(getLastEightDays())
+      .then(data =>
+        this.setState(
+          currentState => {
+            currentState.weekExpenses = data;
+            return currentState;
+          },
+          () => this.displayChart('week')
+        )
+      )
+      .catch(error => console.log(error));
+    getExpenses(getWeeksOfMonth())
+      .then(data =>
+        this.setState(currentState => {
+          currentState.monthExpenses = data;
+          return currentState;
+        })
+      )
+      .catch(error => console.log(error));
+    getExpenses(getMonthsOfYear())
+      .then(data =>
+        this.setState(currentState => {
+          currentState.yearExpenses = data;
+          return currentState;
+        })
+      )
+      .catch(error => console.log(error));
   }
 
   // handler for button onClick: updates which chart is displayed
@@ -57,32 +89,19 @@ class LineChart extends Component {
   displayChart(name) {
     if (this.state.chart) this.state.chart.destroy();
 
-    let xLabels = [], timePeriod = [], expenses = [];
+    let xLabels = [], data = [];
     if (name === 'week') {
-      xLabels = getDayLabels();
-      timePeriod = getLastEightDays();
-      expenses = this.state.weekExpenses;
+      xLabels = this.state.weekLabels;
+      data = this.state.weekExpenses;
     } else if (name === 'month') {
-      xLabels = getMonthLabels();
-      timePeriod = getWeeksOfMonth();
-      expenses = this.state.monthExpenses;
+      xLabels = this.state.monthLabels;
+      data = this.state.monthExpenses;
+    } else if (name === 'year') {
+      xLabels = this.state.yearLabels;
+      data = this.state.yearExpenses;
     }
 
-    this._retrieveChartData(timePeriod, xLabels, expenses, name + 'Expenses');
-  }
-
-  // helper for retrieving chart (meta)data
-  _retrieveChartData(timePeriod, xLabels, expenses, stateProp) {
-    if (expenses.length === 0) {
-      getExpenses(timePeriod)
-        .then(data => {
-          this.setState({ [stateProp]: data });
-          this._renderLineChart(xLabels, data);
-        })
-        .catch(error => console.log(error));
-    } else {
-      this._renderLineChart(xLabels, expenses);
-    }
+    this._renderLineChart(xLabels, data);
   }
 
   // helper that creates and renders line chart, given x-axis labels and data
