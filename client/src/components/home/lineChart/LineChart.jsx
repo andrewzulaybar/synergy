@@ -106,7 +106,7 @@ class LineChart extends Component {
 
   // helper that creates and renders line chart, given x-axis labels and data
   _renderLineChart(xLabels, data) {
-    const ctx = document.getElementById('chart').getContext('2d');
+    const ctx = document.getElementById('lineChart').getContext('2d');
     const gradientStroke = getGradient(
       ctx,
       lineChart.strokeColor1,
@@ -188,12 +188,7 @@ class LineChart extends Component {
 
   render() {
     return (
-      <Col
-        sm={{ span: 24 }}
-        md={{ span: 20 }}
-        lg={{ span: 14 }}
-        xl={{ span: 12 }}
-      >
+      <Col {...this.props.span}>
         <Card className="lineChart">
           <Row>
             <Col span={8}>
@@ -210,7 +205,7 @@ class LineChart extends Component {
             </Col>
           </Row>
           <Row>
-            <canvas id="chart" />
+            <canvas id="lineChart" />
           </Row>
         </Card>
       </Col>

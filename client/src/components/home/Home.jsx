@@ -8,6 +8,8 @@ import Transactions from "./transactions/Transactions";
 import TransactionsProvider from "./transactions/TransactionsProvider";
 import './Home.css';
 import { TransactionsContext } from "./transactions/TransactionsProvider";
+import LineChart from "./lineChart/LineChart";
+import DoughnutChart from "./doughnutChart/DoughnutChart";
 
 class Home extends Component {
   render() {
@@ -41,6 +43,18 @@ class Home extends Component {
                           title="Monthly Savings"
                           amount={150.00}
                         />
+                      </Row>
+                      <Row gutter={16}>
+                        <LineChart span={{
+                          xs: 0,
+                          sm: 24,
+                          lg: 12,
+                        }} />
+                        <DoughnutChart span={{
+                          xs: 0,
+                          sm: 24,
+                          lg: 12,
+                        }} />
                       </Row>
                       <Row type="flex" justify="space-around">
                         <Transactions
