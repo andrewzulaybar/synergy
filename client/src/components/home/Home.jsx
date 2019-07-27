@@ -2,7 +2,6 @@ import { Layout, Row } from 'antd';
 import React, { Component } from 'react';
 import "antd/dist/antd.css";
 
-import AddTransaction from './transactions/AddTransaction';
 import Summary from "./summary/Summary";
 import Transactions from "./transactions/Transactions";
 import TransactionsProvider from "./transactions/TransactionsProvider";
@@ -58,23 +57,10 @@ class Home extends Component {
                       </Row>
                       <Row type="flex" justify="space-around">
                         <Transactions
+                          handleAdd={context.handleAdd}
                           handleDelete={context.handleDelete}
                           transactions={context.state.transactions}
-                          transactionSpan={{
-                            xs: 24,
-                            sm: 24,
-                            md: 24,
-                            lg: 16
-                          }}
-                        />
-                        <AddTransaction
-                          addTransactionSpan={{
-                            xs: 24,
-                            sm: 18,
-                            md: 12,
-                            lg: 6
-                          }}
-                          handleAdd={context.handleAdd}
+                          span={{ xs: 24 }}
                         />
                       </Row>
                     </>

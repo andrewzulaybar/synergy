@@ -1,6 +1,16 @@
-/* table header */
-.ant-table-thead > tr > th {
-    background-color: white;
+/* add transaction */
+.add-transaction {
+    text-align: left;
+}
+
+/* add transaction form items */
+.add-transaction > .ant-form > .ant-row {
+    margin-bottom: 0;
+}
+
+/* date picker */
+.ant-calendar-picker {
+    width: 100%;
 }
 
 /* list of transactions */
