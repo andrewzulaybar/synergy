@@ -8,7 +8,7 @@ import {
   getGradient,
   lineChart,
   tooltip,
-} from '../../utils/Color';
+} from '../../../utils/Color';
 import {
   getDayLabels,
   getLastEightDays,
@@ -16,7 +16,7 @@ import {
   getWeeksOfMonth,
   getMonthLabels,
   getMonthsOfYear
-} from '../../utils/Date';
+} from '../../../utils/Date';
 
 // retrieves expenses for each period from timePeriod[i] to timePeriod[i + 1]
 async function getExpenses(timePeriod) {

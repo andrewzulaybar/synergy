@@ -2,12 +2,12 @@ import { Layout, Row } from 'antd';
 import React, { Component } from 'react';
 import "antd/dist/antd.css";
 
-import AddTransaction from '../transactions/AddTransaction';
-import Summary from "../summary/Summary";
-import Transactions from "../transactions/Transactions";
-import TransactionsProvider from "../transactions/TransactionsProvider";
+import AddTransaction from './transactions/AddTransaction';
+import Summary from "./summary/Summary";
+import Transactions from "./transactions/Transactions";
+import TransactionsProvider from "./transactions/TransactionsProvider";
 import './Home.css';
-import { TransactionsContext } from "../transactions/TransactionsProvider";
+import { TransactionsContext } from "./transactions/TransactionsProvider";
 
 class Home extends Component {
   render() {

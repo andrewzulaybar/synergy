@@ -2,7 +2,7 @@ import { Layout, Menu } from 'antd';
 import React, { Component } from 'react';
 import { BrowserRouter, NavLink, Route } from "react-router-dom";
 
-import LineChart from '../summary/LineChart';
+import LineChart from './lineChart/LineChart';
 import "./Overview.css";
 
 class Overview extends Component {
