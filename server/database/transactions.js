@@ -33,53 +33,73 @@ async function retrieveTransactions() {
 }
 
 /**
- * If start or end is null, then retrieves summary for all transactions.
- * Otherwise, retrieves summary for transactions between start and end date inclusive.
+ * Retrieves summary of transactions.
  *
  * @param {string} type - The type of summary to retrieve: 'expenses' or 'income'.
+ * @param {string} category - The category of transactions to retrieve.
  * @param {Date} start - The start date for the summary.
  * @param {Date} end - The end date for the summary.
  * @returns {Promise<Object>} - Summary statistics for the given time period.
  */
-async function retrieveSummary(type, start, end) {
-  let summary = [];
-  // if all are null, request was sent to /summary
-  if (type === null && start === null && end === null) {
-    summary = await db.collection(collectionName).aggregate(
-      [
-        {
-          $group: {
-            _id: null,
-            count: { $sum: 1 },
-            sum: { $sum: { $convert: { input: '$amount', to: 'double' } } },
+async function retrieveSummary(type, category, start, end) {
+  let summary;
+
+  const match = {
+    $match: {}
+  };
+
+  const group = {
+    $group: {
+      _id: null,
+      count: {$sum: 1},
+      sum: {
+        $sum: {
+          $convert: {
+            input: '$amount', to: 'double'
           }
         }
-      ]
-    ).toArray();
-  }
-  // if request was sent with query params to /summary?type={type}&start={start}&end={end}
-  else if (type && start && end && start <= end) {
+      }
+    }
+  };
+
+  const project = {
+    $project: {
+      sum: {
+        $divide: [{
+          $trunc: {
+            $multiply: ["$sum", 100]
+          }
+        }, 100]
+      }
+    }
+  };
+
+  if (type) {
     let amount;
-    if (type === 'expenses') amount = { $lt: '0' };
-    else if (type === 'income') amount = { $gt: '0' };
-    summary = await db.collection(collectionName).aggregate(
-      [
-        {
-          $match: {
-            amount: amount,
-            date: { $gte: start, $lte: end }
-          }
-        },
-        {
-          $group: {
-            _id: null,
-            count: { $sum: 1 },
-            sum: { $sum: { $convert: { input: '$amount', to: 'double' } } },
-          }
-        }
-      ]
-    ).toArray();
+    if (type === 'expenses')
+      amount = {$lt: '0'};
+    else if (type === 'income')
+      amount = {$gt: '0'};
+    match['$match']['amount'] = amount;
   }
+
+  if (category)
+    match['$match']['tags'] = {$in: [category.toLowerCase(), '$tags']};
+
+  if (start || end) {
+    let date = {};
+    if (start)
+      date = {$gte: start};
+    if (end)
+      date = {...date, $lte: end};
+    match['$match']['date'] = date;
+  }
+
+  summary = await db.collection(collectionName).aggregate([match, group, project]).toArray();
+
+  if (category)
+    summary[0]['category'] = category;
+
   return (summary.length !== 0)
     ? summary[0]
     : { _id: null, sum: 0 };

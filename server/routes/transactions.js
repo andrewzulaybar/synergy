@@ -1,4 +1,6 @@
 const express = require('express');
+
+const { checkErrors, summaryValidator } = require('../validators/summary');
 const {
   addNewTransaction,
   deleteTransactions,
@@ -25,14 +27,19 @@ router.get('/', (req, res) => {
 /**
  * GET summary statistics.
  */
-router.get('/summary', (req, res) => {
-  let type = null, start = null, end = null;
-  if (req.query.type && req.query.start && req.query.end) {
-    type = req.query.type;
-    start = new Date(req.query.start);
-    end = new Date(req.query.end);
-  }
-  retrieveSummary(type, start, end)
+router.get('/summary', summaryValidator, (req, res) => {
+  checkErrors(req, res);
+
+  let type = req.query.type || null;
+  let category = req.query.category || null;
+  let start = req.query.start
+    ? new Date(req.query.start)
+    : null;
+  let end = req.query.end
+    ? new Date(req.query.end)
+    : null;
+
+  retrieveSummary(type, category, start, end)
     .then(summary => {
       res.send({ summary: summary });
     })
@@ -40,7 +47,6 @@ router.get('/summary', (req, res) => {
       console.log(error);
     });
 });
-
 
 /**
  * POST new transaction.
