@@ -11,11 +11,9 @@ database.connectToServer((err) => {
       console.log(err);
 
   const indexRouter = require('./routes/index');
-  const tagsRouter = require('./routes/tags');
   const transactionsRouter = require('./routes/transactions');
 
   app.use('/api', indexRouter);
-  app.use('/api/tags', tagsRouter);
   app.use('/api/transactions', transactionsRouter);
 });
 

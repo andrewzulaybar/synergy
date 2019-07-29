@@ -5,6 +5,7 @@ const {
   addNewTransaction,
   deleteTransactions,
   retrieveSummary,
+  retrieveTags,
   retrieveTransactions,
 } = require('../database/transactions');
 
@@ -31,7 +32,7 @@ router.get('/summary', summaryValidator, (req, res) => {
   checkErrors(req, res);
 
   let type = req.query.type || null;
-  let category = req.query.category || null;
+  let tag = req.query.tag || null;
   let start = req.query.start
     ? new Date(req.query.start)
     : null;
@@ -39,11 +40,25 @@ router.get('/summary', summaryValidator, (req, res) => {
     ? new Date(req.query.end)
     : null;
 
-  retrieveSummary(type, category, start, end)
+  retrieveSummary(type, tag, start, end)
     .then(summary => {
       res.send({ summary: summary });
     })
     .catch(error => {
+      console.log(error);
+    });
+});
+
+/**
+ * GET list of distinct tags.
+ */
+router.get('/tags', (req, res) => {
+  retrieveTags()
+    .then(tags => {
+      res.send({ tags: tags });
+    })
+    .catch(error => {
+      res.send({ tags: [] });
       console.log(error);
     });
 });
