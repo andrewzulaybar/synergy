@@ -4,7 +4,12 @@ import Chart from 'chart.js';
 import React, { Component } from 'react';
 
 import { tooltip } from '../../../utils/Color';
-import { formatDate, getLastEightDays } from "../../../utils/Date";
+import {
+  formatDate,
+  getLastEightDays,
+  getWeeksOfMonth,
+  getMonthsOfYear,
+} from "../../../utils/Date";
 import './DoughnutChart.css';
 
 // calculates percentages of chart slices
@@ -14,7 +19,7 @@ function calculatePercentages(tooltip, object) {
     return acc + dataPoint
   });
   const category = data[tooltip.index];
-  return Math.round(category / total * 100) + '%';
+  return Math.round((category / total * 100) * 10) / 10 + '%';
 }
 
 // formats tag by capitalizing the first letter of each word
@@ -59,21 +64,59 @@ async function getExpenses(start, end, tags) {
 }
 
 class DoughnutChart extends Component {
+  state = {
+    chart: null,
+    weekBreakdown: [],
+    monthBreakdown: [],
+    yearBreakdown: [],
+    weekLabels: [],
+    monthLabels: [],
+    yearLabels: [],
+  };
+
   tags = [];
   numOfTags = 5;
 
   componentDidMount() {
-    const lastEightDays = getLastEightDays();
-    const start = lastEightDays[0];
-    const end = lastEightDays[7];
-
     axios.get('/api/transactions/tags')
       .then(res => {
         this.tags = res.data.tags;
 
         // retrieve data for this week
-        this.retrieveData(start, end)
-          .then(data => this.displayChart(data[0], data[1]))
+        const lastEightDays = getLastEightDays();
+        this.retrieveData(lastEightDays[0], lastEightDays[7])
+          .then(data => {
+            this.setState(currentState => {
+              currentState.weekBreakdown = data[0];
+              currentState.weekLabels = data[1];
+              return currentState;
+            });
+            this._renderLineChart(data[0], data[1]);
+          })
+          .catch(error => console.log(error));
+
+        // retrieve data for this month
+        const lastSixWeeks = getWeeksOfMonth();
+        this.retrieveData(lastSixWeeks[0], lastSixWeeks[5])
+          .then(data => {
+            this.setState(currentState => {
+              currentState.monthBreakdown = data[0];
+              currentState.monthLabels = data[1];
+              return currentState;
+            })
+          })
+          .catch(error => console.log(error));
+
+        // retrieve data for this year
+        const lastTwelveMonths = getMonthsOfYear();
+        this.retrieveData(lastTwelveMonths[0], lastTwelveMonths[12])
+          .then(data => {
+            this.setState(currentState => {
+              currentState.yearBreakdown = data[0];
+              currentState.yearLabels = data[1];
+              return currentState;
+            })
+          })
           .catch(error => console.log(error));
       })
       .catch(error => console.log(error));
@@ -86,16 +129,16 @@ class DoughnutChart extends Component {
       .then(expensesByTag => data = expensesByTag)
       .catch(error => console.log(error));
 
-    const sortedExpenses = this.getExpensesForTopTags([...data]);
+    const sortedExpenses = this._getExpensesForTopTags([...data]);
     const sortedTags = (data.length > 1)
-      ? this.getLabelsForTopTags([...data])
+      ? this._getLabelsForTopTags([...data])
       : [];
 
-    return [sortedTags, sortedExpenses];
+    return [sortedExpenses, sortedTags];
   }
 
   // retrieves labels for top (numOfTags - 1) tags, aggregating the rest into 'other'
-  getLabelsForTopTags(array) {
+  _getLabelsForTopTags(array) {
     const tags = [...this.tags];
     let i = 0, indexOfMax, sortedTags = [];
     while (i < this.numOfTags - 1) {
@@ -112,7 +155,7 @@ class DoughnutChart extends Component {
   }
 
   // retrieves expenses for the top (numOfTags - 1) tags, aggregating the rest into 'other'
-  getExpensesForTopTags(array) {
+  _getExpensesForTopTags(array) {
     const sortedExpenses = [];
     let i = 0, indexOfMax;
     while (i < this.numOfTags - 1) {
@@ -129,10 +172,36 @@ class DoughnutChart extends Component {
     return sortedExpenses;
   }
 
-  displayChart(labels, data) {
+  // handler for button onClick: updates which chart is displayed
+  handleClick = e => {
+    e.preventDefault();
+    this.displayChart(e.target.name);
+  };
+
+  // retrieves (meta)data for chart, then creates and renders chart
+  displayChart(name) {
+    if (this.state.chart) this.state.chart.destroy();
+
+    let labels = [], data = [];
+    if (name === 'week') {
+      labels = this.state.weekLabels;
+      data = this.state.weekBreakdown;
+    } else if (name === 'month') {
+      labels = this.state.monthLabels;
+      data = this.state.monthBreakdown;
+    } else if (name === 'year') {
+      labels = this.state.yearLabels;
+      data = this.state.yearBreakdown;
+    }
+
+    this._renderLineChart(data, labels);
+  }
+
+  // helper that creates and renders chart, given data and labels
+  _renderLineChart(data, labels) {
     const ctx = document.getElementById('doughnutChart').getContext('2d');
 
-    new Chart(ctx, {
+    const chart = new Chart(ctx, {
       type: 'doughnut',
       data: {
         datasets: [{
@@ -180,6 +249,7 @@ class DoughnutChart extends Component {
         }
       }
     });
+    this.setState({ chart: chart });
   }
 
   render() {
@@ -194,9 +264,9 @@ class DoughnutChart extends Component {
             </Col>
             <Col span={16} align="right" className="buttonGroup">
               <Button.Group size="small">
-                <Button name="week">Week</Button>
-                <Button name="month">Month</Button>
-                <Button name="year">Year</Button>
+                <Button onClick={this.handleClick} name="week">Week</Button>
+                <Button onClick={this.handleClick} name="month">Month</Button>
+                <Button onClick={this.handleClick} name="year">Year</Button>
               </Button.Group>
             </Col>
           </Row>
