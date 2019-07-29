@@ -154,7 +154,7 @@ async function retrieveTransactions() {
         }
       }
     ]
-  ).toArray();
+  ).sort({ date: -1 }).toArray();
 }
 
 module.exports = {
