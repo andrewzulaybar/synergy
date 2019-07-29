@@ -3,12 +3,12 @@ import axios from 'axios';
 import Chart from 'chart.js';
 import React, { Component } from 'react';
 
-import './LineChart.css';
+import './Home.css';
 import {
   getGradient,
   lineChart,
   tooltip,
-} from '../../../utils/Color';
+} from '../../utils/Color';
 import {
   formatDate,
   getDayLabels,
@@ -17,7 +17,7 @@ import {
   getWeeksOfMonth,
   getMonthLabels,
   getMonthsOfYear
-} from '../../../utils/Date';
+} from '../../utils/Date';
 
 // retrieves expenses for each period from timePeriod[i] to timePeriod[i + 1]
 async function getExpenses(timePeriod) {
@@ -188,23 +188,26 @@ class LineChart extends Component {
   }
 
   render() {
+    const header = (
+      <Row>
+        <Col span={8} align="left">
+          <Typography.Title level={2} className="chartHeader">
+            Expenses
+          </Typography.Title>
+        </Col>
+        <Col span={16} align="right" className="buttonGroup">
+          <Button.Group size="small">
+            <Button onClick={this.handleClick} name="week">Week</Button>
+            <Button onClick={this.handleClick} name="month">Month</Button>
+            <Button onClick={this.handleClick} name="year">Year</Button>
+          </Button.Group>
+        </Col>
+      </Row>
+    );
+
     return (
       <Col {...this.props.span}>
-        <Card className="lineChart">
-          <Row>
-            <Col span={8}>
-              <Typography.Title level={2} className="chartHeader">
-                Expenses
-              </Typography.Title>
-            </Col>
-            <Col span={16} align="right" className="buttonGroup">
-              <Button.Group size="small">
-                <Button onClick={this.handleClick} name="week">Week</Button>
-                <Button onClick={this.handleClick} name="month">Month</Button>
-                <Button onClick={this.handleClick} name="year">Year</Button>
-              </Button.Group>
-            </Col>
-          </Row>
+        <Card className="lineChart" title={header} bordered={false}>
           <Row>
             <canvas id="lineChart" />
           </Row>

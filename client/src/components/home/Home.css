@@ -12,3 +12,94 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
+
+/* main content layout */
+main.ant-layout-content {
+    padding: 0 16px 16px 16px;
+}
+
+/* home page */
+#home {
+    margin-left: 200px;
+}
+
+/* card headers */
+h2.ant-typography {
+    color: rgba(51, 51, 51, 0.75);
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    margin-bottom: 0;
+    text-transform: uppercase;
+}
+
+/* card body */
+.ant-card-body {
+    padding-top: 5px;
+}
+
+/* transactions */
+.transactions {
+    text-align: left;
+    margin-top: 16px;
+}
+
+/* transactions card header */
+.transactions .ant-typography {
+    padding-top: 3px;
+}
+
+/* transactions card body */
+.transactions .ant-card-body {
+    padding-bottom: 5px;
+}
+
+/* add transaction */
+.add-transaction {
+    text-align: left;
+}
+
+/* date picker */
+.ant-calendar-picker {
+    width: 100%;
+}
+
+/* card with doughnut chart */
+.doughnutChart {
+    background-color: #ffffff;
+    margin-top: 16px;
+}
+
+/* card with line chart */
+.lineChart {
+    background-color: #ffffff;
+    margin-top: 16px;
+}
+
+/* summary card */
+.summary {
+    text-align: left;
+    margin-top: 16px;
+}
+
+/* card amount */
+.amount {
+    color: rgba(51, 51, 51, 0.75);
+    font-size: 28px;
+    margin-bottom: 5px;
+}
+
+/* percent change */
+.percent {
+    font-weight: bold;
+    display: inline;
+    margin-left: 5px;
+    margin-top: 10px;
+}
+
+/* card title */
+.title {
+    color: rgba(51, 51, 51, 0.75);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}

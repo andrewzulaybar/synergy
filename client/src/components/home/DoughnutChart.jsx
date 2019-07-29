@@ -3,14 +3,14 @@ import axios from 'axios';
 import Chart from 'chart.js';
 import React, { Component } from 'react';
 
-import { tooltip } from '../../../utils/Color';
+import { tooltip } from '../../utils/Color';
 import {
   formatDate,
   getLastEightDays,
   getWeeksOfMonth,
   getMonthsOfYear,
-} from "../../../utils/Date";
-import './DoughnutChart.css';
+} from "../../utils/Date";
+import './Home.css';
 
 // calculates percentages of chart slices
 function calculatePercentages(tooltip, object) {
@@ -253,26 +253,27 @@ class DoughnutChart extends Component {
   }
 
   render() {
+    const header = (
+      <Row>
+        <Col span={8} align="left">
+          <Typography.Title level={2} className="chartHeader">
+            Breakdown
+          </Typography.Title>
+        </Col>
+        <Col span={16} align="right" className="buttonGroup">
+          <Button.Group size="small">
+            <Button onClick={this.handleClick} name="week">Week</Button>
+            <Button onClick={this.handleClick} name="month">Month</Button>
+            <Button onClick={this.handleClick} name="year">Year</Button>
+          </Button.Group>
+        </Col>
+      </Row>
+    );
+
     return (
       <Col {...this.props.span}>
-        <Card className="doughnutChart">
-          <Row>
-            <Col span={8}>
-              <Typography.Title level={2} className="chartHeader">
-                Breakdown
-              </Typography.Title>
-            </Col>
-            <Col span={16} align="right" className="buttonGroup">
-              <Button.Group size="small">
-                <Button onClick={this.handleClick} name="week">Week</Button>
-                <Button onClick={this.handleClick} name="month">Month</Button>
-                <Button onClick={this.handleClick} name="year">Year</Button>
-              </Button.Group>
-            </Col>
-          </Row>
-          <Row>
-            <canvas id="doughnutChart" />
-          </Row>
+        <Card className="doughnutChart" title={header} bordered={false}>
+          <canvas id="doughnutChart" />
         </Card>
       </Col>
     );

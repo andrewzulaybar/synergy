@@ -2,20 +2,19 @@ import { Layout, Row } from 'antd';
 import React, { Component } from 'react';
 import "antd/dist/antd.css";
 
-import Summary from "./summary/Summary";
-import Transactions from "./transactions/Transactions";
-import TransactionsProvider from "./transactions/TransactionsProvider";
+import DoughnutChart from "./DoughnutChart";
+import LineChart from "./LineChart";
+import Summary from "./Summary";
+import Transactions from "./Transactions";
+import TransactionsProvider, { TransactionsContext } from "./TransactionsProvider";
 import './Home.css';
-import { TransactionsContext } from "./transactions/TransactionsProvider";
-import LineChart from "./lineChart/LineChart";
-import DoughnutChart from "./doughnutChart/DoughnutChart";
 
 class Home extends Component {
   render() {
     return (
       <Layout style={{ minHeight: '100vh' }}>
-        <Layout style={{ marginLeft: 200 }}>
-          <Layout.Content style={{ padding: 16, overflow: 'initial' }}>
+        <Layout id="home">
+          <Layout.Content>
             <div className="App">
               <TransactionsProvider>
                 <TransactionsContext.Consumer>

@@ -15,7 +15,7 @@ import {
 import { green, red } from '@ant-design/colors';
 import React, { Component } from 'react';
 
-import './Transactions.css';
+import './Home.css';
 
 const schema = [
   'Amount',
@@ -240,40 +240,43 @@ class Transactions extends Component {
       },
     };
 
+    const header = (
+      <Row>
+        <Col span={12} align="left">
+          <Typography.Title level={2}>
+            Transactions
+          </Typography.Title>
+        </Col>
+        <Col span={12} align="right">
+          <Button type="primary" onClick={this.handleOpen}>
+            + Add Transaction
+          </Button>
+          <Modal
+            centered
+            confirmLoading={confirmLoading}
+            okText="Add Transaction"
+            onOk={this.handleOk}
+            onCancel={this.handleCancel}
+            title="Add Transaction"
+            visible={visible}
+          >
+            <Form layout="vertical" onSubmit={this.handleSubmit}>
+              <Col className="add-transaction">
+                {amount}
+                {description}
+                {method}
+                {date}
+                {tags}
+              </Col>
+            </Form>
+          </Modal>
+        </Col>
+      </Row>
+    );
+
     return (
       <Col {...span}>
-        <Card className="transactions-list">
-          <Row>
-            <Col span={12} align="left">
-              <Typography.Title level={2}>
-                Transactions
-              </Typography.Title>
-            </Col>
-            <Col span={12} align="right">
-              <Button type="primary" onClick={this.handleOpen}>
-                + Add Transaction
-              </Button>
-              <Modal
-                centered
-                confirmLoading={confirmLoading}
-                okText="Add Transaction"
-                onOk={this.handleOk}
-                onCancel={this.handleCancel}
-                title="Add Transaction"
-                visible={visible}
-              >
-                <Form layout="vertical" onSubmit={this.handleSubmit}>
-                  <Col className="add-transaction">
-                    {amount}
-                    {description}
-                    {method}
-                    {date}
-                    {tags}
-                  </Col>
-                </Form>
-              </Modal>
-            </Col>
-          </Row>
+        <Card className="transactions" title={header} bordered={false}>
           <Row>
             <Table
               className="transactions"
