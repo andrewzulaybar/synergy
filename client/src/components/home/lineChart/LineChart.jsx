@@ -10,6 +10,7 @@ import {
   tooltip,
 } from '../../../utils/Color';
 import {
+  formatDate,
   getDayLabels,
   getLastEightDays,
   getWeekLabels,
@@ -25,8 +26,8 @@ async function getExpenses(timePeriod) {
     await axios.get('api/transactions/summary', {
       params: {
         type: 'expenses',
-        start: timePeriod[i],
-        end: timePeriod[i + 1]
+        start: formatDate(timePeriod[i]),
+        end: formatDate(timePeriod[i + 1])
       }
     })
       .then(res => {
