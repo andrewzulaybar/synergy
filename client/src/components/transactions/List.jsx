@@ -71,7 +71,7 @@ const columns = (() => {
   return columns;
 })();
 
-class Table extends Component {
+class List extends Component {
   state = {
     selected: [],
     showButton: false,
@@ -144,4 +144,4 @@ class Table extends Component {
   }
 }
 
-export default Table;
+export default List;
