@@ -3,14 +3,14 @@ import axios from 'axios';
 import Chart from 'chart.js';
 import React, { Component } from 'react';
 
-import { tooltip } from '../../utils/Color';
+import { tooltip } from '../../utils/color';
 import {
   formatDate,
   getLastEightDays,
   getWeeksOfMonth,
   getMonthsOfYear,
-} from "../../utils/Date";
-import './Home.css';
+} from "../../utils/date";
+import '../../screens/home/Home.css';
 
 // calculates percentages of chart slices
 function calculatePercentages(tooltip, object) {
@@ -22,14 +22,6 @@ function calculatePercentages(tooltip, object) {
   return Math.round((category / total * 100) * 10) / 10 + '%';
 }
 
-// formats tag by capitalizing the first letter of each word
-function formatTag(tag) {
-  return tag.toLowerCase()
-    .split(' ')
-    .map((tag) => tag.charAt(0).toUpperCase() + tag.substring(1))
-    .join(' ');
-}
-
 // returns index of maximum value in array
 function findIndexOfMax(array) {
   return array.reduce(
@@ -38,6 +30,14 @@ function findIndexOfMax(array) {
         ? index
         : indexOfMax, 0
   );
+}
+
+// formats tag by capitalizing the first letter of each word
+function formatTag(tag) {
+  return tag.toLowerCase()
+    .split(' ')
+    .map((tag) => tag.charAt(0).toUpperCase() + tag.substring(1))
+    .join(' ');
 }
 
 // formats tooltip title
@@ -63,9 +63,10 @@ async function getExpenses(start, end, tags) {
   return data;
 }
 
-class DoughnutChart extends Component {
+class Breakdown extends Component {
   state = {
     chart: null,
+    chartType: null,
     weekBreakdown: [],
     monthBreakdown: [],
     yearBreakdown: [],
@@ -78,48 +79,65 @@ class DoughnutChart extends Component {
   numOfTags = 5;
 
   componentDidMount() {
+    const { subject } = this.props;
+    subject.addObserver(this);
+
     axios.get('/api/transactions/tags')
       .then(res => {
         this.tags = res.data.tags;
-
-        // retrieve data for this week
-        const lastEightDays = getLastEightDays();
-        this.retrieveData(lastEightDays[0], lastEightDays[7])
-          .then(data => {
-            this.setState(currentState => {
-              currentState.weekBreakdown = data[0];
-              currentState.weekLabels = data[1];
-              return currentState;
-            });
-            this._renderLineChart(data[0], data[1]);
-          })
-          .catch(error => console.log(error));
-
-        // retrieve data for this month
-        const lastSixWeeks = getWeeksOfMonth();
-        this.retrieveData(lastSixWeeks[0], lastSixWeeks[5])
-          .then(data => {
-            this.setState(currentState => {
-              currentState.monthBreakdown = data[0];
-              currentState.monthLabels = data[1];
-              return currentState;
-            })
-          })
-          .catch(error => console.log(error));
-
-        // retrieve data for this year
-        const lastTwelveMonths = getMonthsOfYear();
-        this.retrieveData(lastTwelveMonths[0], lastTwelveMonths[12])
-          .then(data => {
-            this.setState(currentState => {
-              currentState.yearBreakdown = data[0];
-              currentState.yearLabels = data[1];
-              return currentState;
-            })
-          })
-          .catch(error => console.log(error));
+        this.setState(
+          { chartType: 'week'},
+          () => this.update()
+        );
       })
       .catch(error => console.log(error));
+  }
+
+  // called when transactions have been updated: re-renders chart
+  update() {
+    this.retrieveBreakdowns()
+      .then(() => this.displayChart(this.state.chartType))
+      .catch(error => console.log(error));
+  }
+
+  // helper for retrieving weekly, monthly, and yearly breakdowns
+  async retrieveBreakdowns() {
+    const lastEightDays = getLastEightDays();
+    const week = this.retrieveData(lastEightDays[0], lastEightDays[7])
+      .then(data =>
+        this.setState(currentState => {
+          currentState.weekBreakdown = data[0];
+          currentState.weekLabels = data[1];
+          return currentState;
+        })
+      )
+      .catch(error => console.log(error));
+
+    const lastTwelveMonths = getMonthsOfYear();
+    const year = this.retrieveData(lastTwelveMonths[0], lastTwelveMonths[12])
+      .then(data =>
+        this.setState(currentState => {
+          currentState.yearBreakdown = data[0];
+          currentState.yearLabels = data[1];
+          return currentState;
+        })
+      )
+      .catch(error => console.log(error));
+
+    const lastSixWeeks = getWeeksOfMonth();
+    const month = this.retrieveData(lastSixWeeks[0], lastSixWeeks[5])
+      .then(data =>
+        this.setState(currentState => {
+          currentState.monthBreakdown = data[0];
+          currentState.monthLabels = data[1];
+          return currentState;
+        })
+      )
+      .catch(error => console.log(error));
+
+    await week;
+    await month;
+    await year;
   }
 
   // retrieves expenses between start date and end date for each tag
@@ -129,16 +147,16 @@ class DoughnutChart extends Component {
       .then(expensesByTag => data = expensesByTag)
       .catch(error => console.log(error));
 
-    const sortedExpenses = this._getExpensesForTopTags([...data]);
+    const sortedExpenses = this.getExpensesForTopTags([...data]);
     const sortedTags = (data.length > 1)
-      ? this._getLabelsForTopTags([...data])
+      ? this.getLabelsForTopTags([...data])
       : [];
 
     return [sortedExpenses, sortedTags];
   }
 
   // retrieves labels for top (numOfTags - 1) tags, aggregating the rest into 'other'
-  _getLabelsForTopTags(array) {
+  getLabelsForTopTags(array) {
     const tags = [...this.tags];
     let i = 0, indexOfMax, sortedTags = [];
     while (i < this.numOfTags - 1) {
@@ -148,14 +166,12 @@ class DoughnutChart extends Component {
       tags.splice(indexOfMax, 1);
       i++;
     }
-
     sortedTags.push('Other');
-
     return sortedTags;
   }
 
   // retrieves expenses for the top (numOfTags - 1) tags, aggregating the rest into 'other'
-  _getExpensesForTopTags(array) {
+  getExpensesForTopTags(array) {
     const sortedExpenses = [];
     let i = 0, indexOfMax;
     while (i < this.numOfTags - 1) {
@@ -164,17 +180,16 @@ class DoughnutChart extends Component {
       array.splice(indexOfMax, 1);
       i++;
     }
-
     let other = 0;
     array.forEach((val) => other += val);
     sortedExpenses.push(other);
-
     return sortedExpenses;
   }
 
   // handler for button onClick: updates which chart is displayed
   handleClick = e => {
     e.preventDefault();
+    this.setState({ chartType: e.target.name});
     this.displayChart(e.target.name);
   };
 
@@ -194,11 +209,11 @@ class DoughnutChart extends Component {
       data = this.state.yearBreakdown;
     }
 
-    this._renderLineChart(data, labels);
+    this.renderLineChart(data, labels);
   }
 
   // helper that creates and renders chart, given data and labels
-  _renderLineChart(data, labels) {
+  renderLineChart(data, labels) {
     const ctx = document.getElementById('doughnutChart').getContext('2d');
 
     const chart = new Chart(ctx, {
@@ -280,4 +295,4 @@ class DoughnutChart extends Component {
   }
 }
 
-export default DoughnutChart;
+export default Breakdown;

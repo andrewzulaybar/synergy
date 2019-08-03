@@ -2,7 +2,7 @@ import { Card, Col, Icon, Row } from "antd";
 import { gold, green, red } from '@ant-design/colors';
 import React, { Component } from 'react';
 
-import './Home.css';
+import '../../screens/home/Home.css';
 
 class Summary extends Component {
   render() {
@@ -39,10 +39,7 @@ class Summary extends Component {
     return (
       <Col
         className="summary"
-        xs={{span: 24}}
-        sm={{span: 16}}
-        md={{span: 12}}
-        lg={{span: 6}}
+        {...{ xs: 24, sm: 16, md: 12, lg: 6 }}
       >
         <Card size="small" bordered={false}>
           <Row>

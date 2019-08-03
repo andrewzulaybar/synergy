@@ -3,12 +3,12 @@ import axios from 'axios';
 import Chart from 'chart.js';
 import React, { Component } from 'react';
 
-import './Home.css';
+import '../../screens/home/Home.css';
 import {
   getGradient,
   lineChart,
   tooltip,
-} from '../../utils/Color';
+} from '../../utils/color';
 import {
   formatDate,
   getDayLabels,
@@ -17,7 +17,7 @@ import {
   getWeeksOfMonth,
   getMonthLabels,
   getMonthsOfYear
-} from '../../utils/Date';
+} from '../../utils/date';
 
 // retrieves expenses for each period from timePeriod[i] to timePeriod[i + 1]
 async function getExpenses(timePeriod) {
@@ -39,9 +39,10 @@ async function getExpenses(timePeriod) {
   return data;
 }
 
-class LineChart extends Component {
+class Expenses extends Component {
   state = {
     chart: null,
+    chartType: null,
     weekExpenses: [],
     monthExpenses: [],
     yearExpenses: [],
@@ -51,18 +52,33 @@ class LineChart extends Component {
   };
 
   componentDidMount() {
-    getExpenses(getLastEightDays())
+    const { subject } = this.props;
+    subject.addObserver(this);
+    this.setState(
+      { chartType: 'week'},
+      () => this.update()
+    );
+  }
+
+  // called when transactions have been updated: re-renders chart
+  update() {
+    this.retrieveExpenses()
+      .then(() => this.displayChart(this.state.chartType))
+      .catch(error => console.log(error)
+    );
+  }
+
+  // retrieve weekly, monthly, and yearly expenses
+  async retrieveExpenses() {
+    const week = getExpenses(getLastEightDays())
       .then(data =>
-        this.setState(
-          currentState => {
+        this.setState(currentState => {
             currentState.weekExpenses = data;
             return currentState;
-          },
-          () => this.displayChart('week')
-        )
+        })
       )
       .catch(error => console.log(error));
-    getExpenses(getWeeksOfMonth())
+    const month = getExpenses(getWeeksOfMonth())
       .then(data =>
         this.setState(currentState => {
           currentState.monthExpenses = data;
@@ -70,7 +86,7 @@ class LineChart extends Component {
         })
       )
       .catch(error => console.log(error));
-    getExpenses(getMonthsOfYear())
+    const year = getExpenses(getMonthsOfYear())
       .then(data =>
         this.setState(currentState => {
           currentState.yearExpenses = data;
@@ -78,11 +94,16 @@ class LineChart extends Component {
         })
       )
       .catch(error => console.log(error));
+
+    await week;
+    await month;
+    await year;
   }
 
   // handler for button onClick: updates which chart is displayed
   handleClick = e => {
     e.preventDefault();
+    this.setState({ chartType: e.target.name});
     this.displayChart(e.target.name);
   };
 
@@ -102,11 +123,11 @@ class LineChart extends Component {
       data = this.state.yearExpenses;
     }
 
-    this._renderLineChart(xLabels, data);
+    this.renderLineChart(xLabels, data);
   }
 
   // helper that creates and renders line chart, given x-axis labels and data
-  _renderLineChart(xLabels, data) {
+  renderLineChart(xLabels, data) {
     const ctx = document.getElementById('lineChart').getContext('2d');
     const gradientStroke = getGradient(
       ctx,
@@ -217,4 +238,4 @@ class LineChart extends Component {
   }
 }
 
-export default LineChart;
+export default Expenses;
