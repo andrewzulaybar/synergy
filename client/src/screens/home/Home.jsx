@@ -14,39 +14,37 @@ class Home extends Component {
     const gutter = 16;
 
     return (
-      <Layout style={{ minHeight: '100vh' }}>
-        <Layout id="home">
-          <Layout.Content className="App">
-              <Provider>
-                <TransactionsContext.Consumer>
-                  {context => (
-                    <>
-                      <Row type="flex" justify="center" gutter={gutter}>
-                        <Group subject={context.subject} />
-                      </Row>
-                      <Row type="flex" justify="center" gutter={gutter}>
-                        <Expenses
-                          span={{ xs: 0, sm: 24, lg: 12 }}
-                          subject={context.subject}
-                        />
-                        <Breakdown
-                          span={{ xs: 0, sm: 24, lg: 12 }}
-                          subject={context.subject}
-                        />
-                      </Row>
-                      <Row type="flex" justify="space-around">
-                        <List
-                          handleDelete={context.handleDelete}
-                          transactions={context.state.transactions}
-                          span={{ xs: 24 }}
-                        />
-                      </Row>
-                    </>
-                  )}
-                </TransactionsContext.Consumer>
-              </Provider>
-          </Layout.Content>
-        </Layout>
+      <Layout id="home">
+        <Layout.Content className="App">
+          <Provider>
+            <TransactionsContext.Consumer>
+              {context => (
+                <>
+                  <Row type="flex" justify="center" gutter={gutter}>
+                    <Group subject={context.subject} />
+                  </Row>
+                  <Row type="flex" justify="center" gutter={gutter}>
+                    <Expenses
+                      span={{ xs: 24, lg: 12 }}
+                      subject={context.subject}
+                    />
+                    <Breakdown
+                      span={{ xs: 24, lg: 12 }}
+                      subject={context.subject}
+                    />
+                  </Row>
+                  <Row type="flex" justify="space-around">
+                    <List
+                      handleDelete={context.handleDelete}
+                      transactions={context.state.transactions}
+                      span={{ xs: 24 }}
+                    />
+                  </Row>
+                </>
+              )}
+            </TransactionsContext.Consumer>
+          </Provider>
+        </Layout.Content>
       </Layout>
     );
   }

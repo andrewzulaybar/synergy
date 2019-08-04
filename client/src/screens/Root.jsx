@@ -1,5 +1,6 @@
+import { Layout } from "antd";
 import React, { Component } from "react";
-import { BrowserRouter, Route, } from 'react-router-dom';
+import { BrowserRouter, Route } from 'react-router-dom';
 
 import Home from './home/Home';
 import Overview from './overview/Overview';
@@ -10,9 +11,11 @@ class Root extends Component {
   render() {
     return (
       <BrowserRouter>
-        <Sidebar />
-        <Route exact path="/" component={Home} />
-        <Route path="/overview" component={Overview} />
+        <Layout>
+          <Sidebar />
+          <Route exact path="/" component={Home} />
+          <Route path="/overview" component={Overview} />
+        </Layout>
       </BrowserRouter>
     );
   }

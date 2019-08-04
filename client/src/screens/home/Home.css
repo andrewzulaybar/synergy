@@ -25,11 +25,7 @@ body {
 /* main content layout */
 main.ant-layout-content {
     padding: 0 16px 16px 16px;
-}
-
-/* home page */
-#home {
-    margin-left: 200px;
+    min-width: 560px;
 }
 
 /* card headers */

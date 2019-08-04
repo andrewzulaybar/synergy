@@ -39,7 +39,7 @@ class Summary extends Component {
     return (
       <Col
         className="summary"
-        {...{ xs: 24, sm: 16, md: 12, lg: 6 }}
+        {...{ xs: 24, sm: 12, lg: 6 }}
       >
         <Card size="small" bordered={false}>
           <Row>
