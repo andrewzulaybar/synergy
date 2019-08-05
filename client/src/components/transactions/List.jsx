@@ -1,10 +1,25 @@
 import { Button, Card, Col, Row, Skeleton, Table, Tag, Typography } from 'antd';
 import { green, red } from '@ant-design/colors';
+import axios from "axios";
 import React, { Component } from 'react';
 
 import Add from './Add';
 import { TransactionsContext } from './Provider';
 import '../../screens/home/Home.css';
+
+const colors = [
+  'magenta',
+  'red',
+  'volcano',
+  'orange',
+  'gold',
+  'lime',
+  'green',
+  'cyan',
+  'blue',
+  'geekblue',
+  'purple'
+];
 
 const schema = [
   'Amount',
@@ -14,13 +29,7 @@ const schema = [
   'Date'
 ];
 
-const tagColors = {
-  'clothes': 'blue',
-  'income': 'green',
-  'restaurants': 'red',
-  'skincare': 'yellow',
-  'travel': 'orange',
-};
+const tagColors = {};
 
 const columns = (() => {
   let columns = [];
@@ -39,34 +48,41 @@ const columns = (() => {
     if (amount < 0) {
       return (
         <div style={{color: red[4]}}>
-          - ${-amount}
+          - ${(-amount).toFixed(2)}
         </div>
       );
     } else {
       return (
         <div style={{color: green[3]}}>
-          + ${amount}
+          + ${(+amount).toFixed(2)}
         </div>
       );
     }
   };
 
   // format tags
-  let tagsIndex = schema.indexOf('Tags');
-  columns[tagsIndex].render = tags => (
-    <span>
-      {(tags)
-        ? tags.map(tag => {
-          let color = tagColors[tag];
-          return (
-            <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          );
-        })
-        : []}
-    </span>
-  );
+  axios.get('api/transactions/tags')
+    .then(res => {
+      const tags = res.data.tags;
+      for(let i = 0; i < tags.length; i++)
+        tagColors[tags[i]] = colors[i];
+      const tagsIndex = schema.indexOf('Tags');
+      columns[tagsIndex].render = tags => (
+        <span>
+          {(tags)
+            ? tags.map(tag => {
+              let color = tagColors[tag];
+              return (
+                <Tag color={color} key={tag}>
+                  {tag.toUpperCase()}
+                </Tag>
+              );
+            })
+            : []}
+        </span>
+      );
+    })
+    .catch(error => console.log(error));
 
   return columns;
 })();
@@ -107,7 +123,7 @@ class List extends Component {
         </Col>
         <Col span={12} align="right">
           <TransactionsContext.Consumer>
-            {context => (<Add handleAdd={context.handleAdd} />)}
+            {context => (<Add handleAdd={context.handleAdd} subject={context.subject} />)}
           </TransactionsContext.Consumer>
         </Col>
       </Row>

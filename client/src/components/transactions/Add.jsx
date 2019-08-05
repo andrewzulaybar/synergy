@@ -1,10 +1,41 @@
-import { Button, Col, DatePicker, Form, Input, Modal, Select } from "antd";
+import { Button, Col, DatePicker, Form, Input, Modal, Select, Typography } from "antd";
+import axios from 'axios';
 import React, { Component } from 'react';
 
 class Add extends Component {
   state = {
     confirmLoading: false,
+    tags: [],
     visible: false,
+  };
+
+  componentDidMount() {
+    const { subject } = this.props;
+    subject.addObserver(this);
+
+    this.getTags();
+  }
+
+  // called when transactions have been updated: re-renders list of tags
+  update() {
+    this.getTags();
+  }
+
+  // retrieves list of distinct tags and formats tag options
+  getTags = () => {
+    axios.get('api/transactions/tags')
+      .then(res => {
+        const tags = [];
+        res.data.tags.forEach(tag =>
+          tags.push(
+            <Select.Option key={tag} value={tag}>
+              {tag}
+            </Select.Option>
+          )
+        );
+        this.setState({ tags: tags });
+      })
+      .catch(error => console.log(error));
   };
 
   // handler for opening modal
@@ -127,14 +158,16 @@ class Add extends Component {
           rules: [],
         })(
           <Select mode="tags" placeholder="Select optional tags" allowClear>
-            <Select.Option value="clothes">clothes</Select.Option>
-            <Select.Option value="income">income</Select.Option>
-            <Select.Option value="restaurants">restaurants</Select.Option>
-            <Select.Option value="skincare">skincare</Select.Option>
-            <Select.Option value="travel">travel</Select.Option>
+            {this.state.tags}
           </Select>
         )}
       </Form.Item>
+    );
+
+    const header = (
+      <Typography.Title level={2}>
+        Add Transaction
+      </Typography.Title>
     );
 
     return (
@@ -144,12 +177,21 @@ class Add extends Component {
         </Button>
         <Modal
           centered
-          closable={false}
           confirmLoading={confirmLoading}
-          okText="Add Transaction"
-          onOk={this.handleOk}
+          destroyOnClose={true}
+          footer={
+            <Button
+              block
+              key="submit"
+              loading={confirmLoading}
+              type="primary"
+              onClick={this.handleOk}
+            >
+              Add Transaction
+            </Button>
+          }
           onCancel={this.handleCancel}
-          title="Add Transaction"
+          title={header}
           visible={visible}
         >
           <Form layout="vertical">
