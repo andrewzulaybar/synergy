@@ -1,4 +1,4 @@
-import { Button, Card, Col, Row, Table, Tag, Typography } from 'antd';
+import { Button, Card, Col, Row, Skeleton, Table, Tag, Typography } from 'antd';
 import { green, red } from '@ant-design/colors';
 import React, { Component } from 'react';
 
@@ -116,28 +116,30 @@ class List extends Component {
     return (
       <Col {...span}>
         <Card className="transactions" title={header} bordered={false}>
-          <Row>
-            <Table
-              className="transactions"
-              columns={columns}
-              dataSource={transactions}
-              pagination={{ position: 'bottom' }}
-              rowKey={(record) => { return record._id }}
-              rowSelection={rowSelection}
-              size="middle"
-              footer={
-                (this.state.showButton)
-                  ? () => {
-                    return (
-                      <Button onClick={this.handleSubmit}  type="primary">
-                        Delete
-                      </Button>
-                    )
+          {(transactions.length === 0)
+            ? <Skeleton active paragraph={{ rows: 6 }} />
+            : <Row>
+                <Table
+                  className="transactions"
+                  columns={columns}
+                  dataSource={transactions}
+                  pagination={{ position: 'bottom' }}
+                  rowKey={(record) => { return record._id }}
+                  rowSelection={rowSelection}
+                  size="middle"
+                  footer={
+                    (this.state.showButton)
+                      ? () => {
+                        return (
+                          <Button onClick={this.handleSubmit}  type="primary">
+                            Delete
+                          </Button>
+                        )
+                      }
+                      : undefined
                   }
-                  : undefined
-              }
-            />
-          </Row>
+                />
+              </Row>}
         </Card>
       </Col>
     );

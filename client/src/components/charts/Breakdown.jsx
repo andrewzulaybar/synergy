@@ -1,4 +1,4 @@
-import { Button, Card, Col, Row, Typography } from 'antd';
+import { Button, Card, Col, Row, Skeleton, Typography } from 'antd';
 import axios from 'axios';
 import Chart from 'chart.js';
 import React, { Component } from 'react';
@@ -288,7 +288,11 @@ class Breakdown extends Component {
     return (
       <Col {...this.props.span}>
         <Card className="doughnutChart" title={header} bordered={false}>
-          <canvas id="doughnutChart" />
+          {(this.state.weekBreakdown.length === 0 || this.state.weekLabels.length === 0)
+            ? <Skeleton active paragraph={{ rows: 6 }} />
+            : <Row>
+                <canvas id="doughnutChart" />
+              </Row>}
         </Card>
       </Col>
     );
