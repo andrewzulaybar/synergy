@@ -7,20 +7,6 @@ import Add from './Add';
 import { TransactionsContext } from './Provider';
 import '../../screens/home/Home.css';
 
-const colors = [
-  'magenta',
-  'red',
-  'volcano',
-  'orange',
-  'gold',
-  'lime',
-  'green',
-  'cyan',
-  'blue',
-  'geekblue',
-  'purple'
-];
-
 const schema = [
   'Amount',
   'Description',
@@ -28,8 +14,6 @@ const schema = [
   'Tags',
   'Date'
 ];
-
-const tagColors = {};
 
 const columns = (() => {
   let columns = [];
@@ -61,28 +45,20 @@ const columns = (() => {
   };
 
   // format tags
-  axios.get('api/transactions/tags')
-    .then(res => {
-      const tags = res.data.tags;
-      for(let i = 0; i < tags.length; i++)
-        tagColors[tags[i]] = colors[i];
-      const tagsIndex = schema.indexOf('Tags');
-      columns[tagsIndex].render = tags => (
-        <span>
-          {(tags)
-            ? tags.map(tag => {
-              let color = tagColors[tag];
-              return (
-                <Tag color={color} key={tag}>
-                  {tag.toUpperCase()}
-                </Tag>
-              );
-            })
-            : []}
-        </span>
-      );
-    })
-    .catch(error => console.log(error));
+  const tagsIndex = schema.indexOf('Tags');
+  columns[tagsIndex].render = tags => (
+    <span>
+      {(tags)
+        ? tags.map(tag => {
+          return (
+            <Tag key={tag}>
+              {tag.toUpperCase()}
+            </Tag>
+          );
+        })
+        : []}
+    </span>
+  );
 
   return columns;
 })();
@@ -147,7 +123,7 @@ class List extends Component {
                     (this.state.showButton)
                       ? () => {
                         return (
-                          <Button onClick={this.handleSubmit}  type="primary">
+                          <Button onClick={this.handleSubmit}>
                             Delete
                           </Button>
                         )

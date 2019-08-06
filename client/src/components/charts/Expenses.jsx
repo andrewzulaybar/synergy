@@ -5,7 +5,6 @@ import React, { Component } from 'react';
 
 import '../../screens/home/Home.css';
 import {
-  getGradient,
   lineChart,
   tooltip,
 } from '../../utils/color';
@@ -129,18 +128,6 @@ class Expenses extends Component {
   // helper that creates and renders line chart, given x-axis labels and data
   renderLineChart(xLabels, data) {
     const ctx = document.getElementById('lineChart').getContext('2d');
-    const gradientStroke = getGradient(
-      ctx,
-      lineChart.strokeColor1,
-      lineChart.strokeColor2,
-      300, 0, 100, 0
-    );
-    const gradientFill = getGradient(
-      ctx,
-      lineChart.fillColor1,
-      lineChart.fillColor2,
-      300, 0, 100, 0
-    );
 
     const chart = new Chart(ctx, {
       type: 'line',
@@ -148,10 +135,10 @@ class Expenses extends Component {
         labels: xLabels,
         datasets: [
           {
-            backgroundColor: gradientFill,
-            borderColor: gradientStroke,
+            backgroundColor: lineChart.fillColor,
+            borderColor: lineChart.strokeColor,
             data: data,
-            pointBackgroundColor: gradientStroke,
+            pointBackgroundColor: lineChart.strokeColor,
           }
         ]
       },
@@ -179,10 +166,15 @@ class Expenses extends Component {
           }],
           yAxes: [{
             beginAtZero: true,
-            display: false,
             gridLines: {
-              display: false,
               drawBorder: false,
+              borderDash: [8, 4],
+              color: "#e5e5e5",
+              zeroLineWidth: 0,
+            },
+            ticks: {
+              maxTicksLimit: 5,
+              padding: 10,
             }
           }]
         },

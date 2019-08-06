@@ -31,12 +31,6 @@ class Sidebar extends Component {
               <span className="nav-text">Home</span>
             </NavLink>
           </Menu.Item>
-          <Menu.Item key="/overview">
-            <NavLink to="/overview">
-              <Icon type="file"/>
-              <span className="nav-text">Overview</span>
-            </NavLink>
-          </Menu.Item>
         </Menu>
       </Layout.Sider>
     );

@@ -3,7 +3,7 @@ import axios from 'axios';
 import Chart from 'chart.js';
 import React, { Component } from 'react';
 
-import { tooltip } from '../../utils/color';
+import { doughnutChart, tooltip } from '../../utils/color';
 import {
   formatDate,
   getLastEightDays,
@@ -220,9 +220,10 @@ class Breakdown extends Component {
       type: 'doughnut',
       data: {
         datasets: [{
-          backgroundColor: ['#80b6f4', '#b8c2fa', '#e1d0fd', '#ffe1ff', '#ffc3e0', '#ffa7b4'],
+          backgroundColor: doughnutChart.colors,
           borderWidth: 0,
           data: data,
+          hoverBackgroundColor: doughnutChart.colors,
         }],
         labels: labels,
       },

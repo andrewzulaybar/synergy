@@ -172,8 +172,8 @@ class Add extends Component {
 
     return (
       <>
-        <Button type="primary" onClick={this.handleOpen}>
-          + Add Transaction
+        <Button onClick={this.handleOpen}>
+          Add Transaction
         </Button>
         <Modal
           centered

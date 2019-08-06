@@ -59,6 +59,11 @@ h2.ant-typography {
     padding-bottom: 5px;
 }
 
+/* hover on transactions table row */
+.ant-table-tbody > tr.ant-table-row.ant-table-row-level-0:hover > td {
+    background-color: rgba(104, 145, 229, 0.1);
+}
+
 /* add transaction */
 .add-transaction {
     text-align: left;
