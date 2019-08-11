@@ -41,104 +41,87 @@ function pad(n) {
 /**
  * Creates labels for the past 7 days, including today.
  *
- * @returns {Array} - The labels for the past 7 days.
+ * @returns {string[]} - The labels for the past 7 days, including today.
  */
 function getDayLabels() {
-  let today = new Date().getDay();
-  let dates = [], i;
-  for (i = 0; i < 7; i++) {
-    dates.push(days[today]);
-    (today === 0)
-      ? today = Object.keys(days).length - 1
-      : today--;
-  }
-  return dates.reverse();
+  const lastSevenDays = getLastSevenDays();
+  return lastSevenDays.map(date => days[date.getDay()]);
 }
 
 /**
- * Retrieves the last eight dates, including today.
+ * Retrieves the dates for the past 7 days, including today.
  *
- * @returns {Array} - The list of the past 8 dates.
+ * @returns {Date[]} - The list of the past 7 dates, including today.
  */
-function getLastEightDays() {
-  let today = new Date();
-  let lastEightDays = [], i;
-  for (i = 0; i < 8; i++) {
-    lastEightDays.push(new Date(today));
-    today.setDate(today.getDate() - 1);
+function getLastSevenDays() {
+  let date = new Date();
+  let lastSevenDays = [];
+  for (let i = 0; i < 7; i++) {
+    lastSevenDays.push(new Date(date));
+    date.setDate(date.getDate() - 1);
   }
-  return lastEightDays.reverse();
+  return lastSevenDays.reverse();
 }
 
 /**
  * Creates labels for the past 5 weeks, including this week.
  *
- * @returns {Array} - The labels for the past 5 weeks.
+ * @returns {string[]} - The labels for the past 5 weeks, including this week.
  */
 function getWeekLabels() {
-  let today = new Date();
-  let weeks = [], i;
-  for (i = 0; i < 5; i++) {
-    weeks.push((months[today.getMonth()]) + ' ' + today.getDate());
-    today.setDate(today.getDate() - 7);
-  }
-  return weeks.reverse();
+  const lastFiveWeeks = getLastFiveWeeks();
+  return lastFiveWeeks.map(date => months[date.getMonth()] + ' ' + date.getDate());
 }
 
 /**
- * Retrieves the past 6 weeks, including this week.
+ * Retrieves the start dates for the past 5 weeks, including this week.
  *
- * @returns {Array} - The list of the past 6 weeks.
+ * @returns {Date[]} - The list of start dates for the past 5 weeks, including this week.
  */
-function getWeeksOfMonth() {
-  let today = new Date();
-  let weeks = [], i;
-  for (i = 0; i < 6; i++) {
-    weeks.push(new Date(today));
-    today.setDate(today.getDate() - 7);
+function getLastFiveWeeks() {
+  let date = new Date();
+  date.setDate(date.getDate() - 7);
+  let lastFiveWeeks = [];
+  for (let i = 0; i < 5; i++) {
+    lastFiveWeeks.push(new Date(date));
+    date.setDate(date.getDate() - 7);
   }
-  return weeks.reverse();
+  return lastFiveWeeks.reverse();
 }
 
 /**
  * Creates labels for the past 12 months, including this month.
  *
- * @returns {Array} - The labels for the past 12 months.
+ * @returns {string[]} - The labels for the past 12 months, including this month.
  */
 function getMonthLabels() {
-  let today = new Date();
-  let last12Months = [], i;
-  for (i = 0; i < 12; i++) {
-    last12Months.push(months[today.getMonth()]);
-    today.setMonth(today.getMonth() - 1);
-  }
-  return last12Months.reverse();
+  const lastTwelveMonths = getLastTwelveMonths();
+  return lastTwelveMonths.map(date => months[date.getMonth()]);
 }
 
 /**
- * Retrieves the past 12 months, including this month.
+ * Retrieves the end dates for the past 12 months, including this month.
  *
- * @returns {Array} - The list of the past 12 months.
+ * @returns {Date[]} - The list of end dates for the past 12 months, including this month.
  */
-function getMonthsOfYear() {
-  let today = new Date();
-  today.setMonth(today.getMonth() + 1);
-  let lastYear = [], i;
-  for (i = 0; i < 13; i++) {
-    today.setDate(1);
-    lastYear.push(new Date(today));
-    today.setMonth(today.getMonth() - 1);
+function getLastTwelveMonths() {
+  let date = new Date();
+  let lastTwelveMonths = [];
+  for (let i = 0; i < 12; i++) {
+    date.setDate(1);
+    lastTwelveMonths.push(new Date(date));
+    date.setMonth(date.getMonth() - 1);
   }
-  return lastYear.reverse();
+  return lastTwelveMonths.reverse();
 }
 
 export {
   createDate,
   formatDate,
   getDayLabels,
-  getLastEightDays,
+  getLastSevenDays,
   getWeekLabels,
-  getWeeksOfMonth,
+  getLastFiveWeeks,
   getMonthLabels,
-  getMonthsOfYear,
+  getLastTwelveMonths,
 };

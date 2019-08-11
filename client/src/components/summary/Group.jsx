@@ -4,22 +4,6 @@ import axios from 'axios';
 import Summary from './Summary';
 import { createDate, formatDate } from '../../utils/date';
 
-
-// retrieves period summary according to type (expenses or income)
-async function getPeriodSummary(start, end, type) {
-  let total = 0;
-  await axios.get('api/transactions/summary', {
-    params: {
-      type: type,
-      start: start,
-      end: end,
-    }
-  })
-    .then(res => total = Math.abs(res.data.summary.sum))
-    .catch(error => console.log(error));
-  return total;
-}
-
 class Group extends Component {
   state = {
     weeklyExpenses: 0,
@@ -43,20 +27,6 @@ class Group extends Component {
     this.updateMonthlyIncome();
   }
 
-  // helper for retrieving summary for current period and previous period
-  retrievePeriodSummary(lastPeriodStart, thisPeriodStart, thisPeriodEnd, type) {
-    let summaryType = type.toLowerCase().includes('income') ? 'income' : 'expenses';
-    getPeriodSummary(thisPeriodStart, thisPeriodEnd, summaryType)
-      .then(thisPeriodTotal =>
-        getPeriodSummary(lastPeriodStart, thisPeriodStart, summaryType)
-          .then(lastPeriodTotal =>
-            this.updateState(thisPeriodTotal, lastPeriodTotal, type)
-          )
-          .catch(error => console.log(error))
-      )
-      .catch(error => console.log(error))
-  }
-
   // helper for updating state
   updateState = (currentPeriodTotal, previousPeriodTotal, type) => {
     let typePercentChange = type + 'PercentChange';
@@ -72,33 +42,64 @@ class Group extends Component {
 
   // updates weekly expenses and percent change
   updateWeeklyExpenses() {
-    let end = createDate();
-    let thisWeekStart = createDate(7);
-    let lastWeekStart = createDate(14);
+    let end = createDate(-1);
+    let thisWeekStart = createDate(6);
+    let lastWeekStart = createDate(13);
 
     this.retrievePeriodSummary(lastWeekStart, thisWeekStart, end, 'weeklyExpenses');
   }
 
   // updates monthly expenses and percent change
   updateMonthlyExpenses() {
-    let today = new Date();
+    let tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
-    let end = formatDate(today);
-    let thisMonthStart = formatDate(new Date(today.getFullYear(), today.getMonth(), 1));
-    let lastMonthStart = formatDate(new Date(today.getFullYear(), today.getMonth() - 1, 1));
+    let end = formatDate(tomorrow);
+    let thisMonthStart = formatDate(new Date(tomorrow.getFullYear(), tomorrow.getMonth(), 1));
+    let lastMonthStart = formatDate(new Date(tomorrow.getFullYear(), tomorrow.getMonth() - 1, 1));
 
     this.retrievePeriodSummary(lastMonthStart, thisMonthStart, end, 'monthlyExpenses');
   }
 
   // updates monthly income and percent change
   updateMonthlyIncome() {
-    let today = new Date();
+    let tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
-    let end = formatDate(today);
-    let thisMonthStart = formatDate(new Date(today.getFullYear(), today.getMonth(), 1));
-    let lastMonthStart = formatDate(new Date(today.getFullYear(), today.getMonth() - 1, 1));
+    let end = formatDate(tomorrow);
+    let thisMonthStart = formatDate(new Date(tomorrow.getFullYear(), tomorrow.getMonth(), 1));
+    let lastMonthStart = formatDate(new Date(tomorrow.getFullYear(), tomorrow.getMonth() - 1, 1));
 
     this.retrievePeriodSummary(lastMonthStart, thisMonthStart, end, 'monthlyIncome');
+  }
+
+  // helper for retrieving summary for current period and previous period
+  retrievePeriodSummary(lastPeriodStart, thisPeriodStart, thisPeriodEnd, type) {
+    let summaryType = type.toLowerCase().includes('income') ? 'income' : 'expenses';
+    this.getPeriodSummary(thisPeriodStart, thisPeriodEnd, summaryType)
+      .then(thisPeriodTotal =>
+        this.getPeriodSummary(lastPeriodStart, thisPeriodStart, summaryType)
+          .then(lastPeriodTotal =>
+            this.updateState(thisPeriodTotal, lastPeriodTotal, type)
+          )
+          .catch(error => console.log(error))
+      )
+      .catch(error => console.log(error))
+  }
+
+  // retrieves period summary according to type (expenses or income)
+  async getPeriodSummary(start, end, type) {
+    let total = 0;
+    await axios.get('api/transactions/summary', {
+      params: {
+        type: type,
+        start: start,
+        end: end,
+      }
+    })
+      .then(res => total = Math.abs(res.data.summary.sum))
+      .catch(error => console.log(error));
+    return total;
   }
 
   render() {

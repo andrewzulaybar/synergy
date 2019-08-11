@@ -1,6 +1,5 @@
 import { Button, Card, Col, Row, Skeleton, Table, Tag, Typography } from 'antd';
 import { green, red } from '@ant-design/colors';
-import axios from "axios";
 import React, { Component } from 'react';
 
 import Add from './Add';

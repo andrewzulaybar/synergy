@@ -24,14 +24,8 @@ class Home extends Component {
                     <Group subject={context.subject} />
                   </Row>
                   <Row type="flex" justify="center" gutter={gutter}>
-                    <Expenses
-                      span={{ xs: 24, lg: 12 }}
-                      subject={context.subject}
-                    />
-                    <Breakdown
-                      span={{ xs: 24, lg: 12 }}
-                      subject={context.subject}
-                    />
+                    <Expenses span={{ xs: 24, lg: 12 }} />
+                    <Breakdown span={{ xs: 24, lg: 12 }} />
                   </Row>
                   <Row type="flex" justify="space-around">
                     <List

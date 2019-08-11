@@ -1,47 +1,16 @@
-import { Button, Card, Col, Row, Skeleton, Typography } from 'antd';
-import axios from 'axios';
+import { Col, Row, Skeleton } from 'antd';
+import axios from "axios";
 import Chart from 'chart.js';
 import React, { Component } from 'react';
 
+import BaseChart from './Chart';
+import { TransactionsContext } from "../transactions/Provider";
+import { lineChart, tooltip } from '../../utils/color';
+import {getDayLabels, getWeekLabels, getMonthLabels, formatDate} from '../../utils/date';
 import '../../screens/home/Home.css';
-import {
-  lineChart,
-  tooltip,
-} from '../../utils/color';
-import {
-  formatDate,
-  getDayLabels,
-  getLastEightDays,
-  getWeekLabels,
-  getWeeksOfMonth,
-  getMonthLabels,
-  getMonthsOfYear
-} from '../../utils/date';
-
-// retrieves expenses for each period from timePeriod[i] to timePeriod[i + 1]
-async function getExpenses(timePeriod) {
-  let data = [], i;
-  for (i = 0; i < timePeriod.length - 1; i++) {
-    await axios.get('api/transactions/summary', {
-      params: {
-        type: 'expenses',
-        start: formatDate(timePeriod[i]),
-        end: formatDate(timePeriod[i + 1])
-      }
-    })
-      .then(res => {
-        let expenses = Math.abs(res.data.summary.sum);
-        data.push(expenses);
-      })
-      .catch(error => console.log(error));
-  }
-  return data;
-}
 
 class Expenses extends Component {
   state = {
-    chart: null,
-    chartType: null,
     weekExpenses: [],
     monthExpenses: [],
     yearExpenses: [],
@@ -50,66 +19,8 @@ class Expenses extends Component {
     yearLabels: getMonthLabels(),
   };
 
-  componentDidMount() {
-    const { subject } = this.props;
-    subject.addObserver(this);
-    this.setState(
-      { chartType: 'week'},
-      () => this.update()
-    );
-  }
-
-  // called when transactions have been updated: re-renders chart
-  update() {
-    this.retrieveExpenses()
-      .then(() => this.displayChart(this.state.chartType))
-      .catch(error => console.log(error)
-    );
-  }
-
-  // retrieve weekly, monthly, and yearly expenses
-  async retrieveExpenses() {
-    const week = getExpenses(getLastEightDays())
-      .then(data =>
-        this.setState(currentState => {
-            currentState.weekExpenses = data;
-            return currentState;
-        })
-      )
-      .catch(error => console.log(error));
-    const month = getExpenses(getWeeksOfMonth())
-      .then(data =>
-        this.setState(currentState => {
-          currentState.monthExpenses = data;
-          return currentState;
-        })
-      )
-      .catch(error => console.log(error));
-    const year = getExpenses(getMonthsOfYear())
-      .then(data =>
-        this.setState(currentState => {
-          currentState.yearExpenses = data;
-          return currentState;
-        })
-      )
-      .catch(error => console.log(error));
-
-    await week;
-    await month;
-    await year;
-  }
-
-  // handler for button onClick: updates which chart is displayed
-  handleClick = e => {
-    e.preventDefault();
-    this.setState({ chartType: e.target.name});
-    this.displayChart(e.target.name);
-  };
-
   // retrieves (meta)data for chart, then creates and renders chart
-  displayChart(name) {
-    if (this.state.chart) this.state.chart.destroy();
-
+  displayChart = name => {
     let xLabels = [], data = [];
     if (name === 'week') {
       xLabels = this.state.weekLabels;
@@ -122,111 +33,143 @@ class Expenses extends Component {
       data = this.state.yearExpenses;
     }
 
-    this.renderLineChart(xLabels, data);
-  }
-
-  // helper that creates and renders line chart, given x-axis labels and data
-  renderLineChart(xLabels, data) {
-    const ctx = document.getElementById('lineChart').getContext('2d');
-
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: xLabels,
-        datasets: [
-          {
-            backgroundColor: lineChart.fillColor,
-            borderColor: lineChart.strokeColor,
-            data: data,
-            pointBackgroundColor: lineChart.strokeColor,
-          }
-        ]
-      },
-      options: {
-        hover: {
-          animationDuration: 500
-        },
-        layout: {
-          padding: {
-            bottom: 0,
-            left: 0,
-            right: 0,
-            top: 50,
-          }
-        },
-        legend: {
-          display: false
-        },
-        scales: {
-          xAxes: [{
-            gridLines: {
-              display: false,
-              drawBorder: false,
+    return new Chart(
+      document.getElementById('lineChart').getContext('2d'),
+      {
+        type: 'line',
+        data: {
+          labels: xLabels,
+          datasets: [
+            {
+              backgroundColor: lineChart.fillColor,
+              borderColor: lineChart.strokeColor,
+              data: data,
+              pointBackgroundColor: lineChart.strokeColor,
             }
-          }],
-          yAxes: [{
-            beginAtZero: true,
-            gridLines: {
-              drawBorder: false,
-              borderDash: [8, 4],
-              color: "#e5e5e5",
-              zeroLineWidth: 0,
-            },
-            ticks: {
-              maxTicksLimit: 5,
-              padding: 10,
-            }
-          }]
+          ]
         },
-        tooltips: {
-          backgroundColor: tooltip.backgroundColor,
-          bodyAlign: 'center',
-          bodyFontColor: tooltip.textColor,
-          callbacks: {
-            label: (tooltip, object) => {
-              const yLabel = object.datasets[tooltip.datasetIndex].data[tooltip.index];
-              return '$ ' + yLabel;
+        options: {
+          hover: {
+            animationDuration: 500
+          },
+          layout: {
+            padding: {
+              bottom: 0,
+              left: 0,
+              right: 0,
+              top: 50,
             }
           },
-          displayColors: false,
-          intersect: false,
-          titleAlign: 'center',
-          titleFontColor: tooltip.textColor,
-          xAlign: 'center',
-          yAlign: 'bottom',
+          legend: {
+            display: false
+          },
+          scales: {
+            xAxes: [{
+              gridLines: {
+                display: false,
+                drawBorder: false,
+              }
+            }],
+            yAxes: [{
+              beginAtZero: true,
+              gridLines: {
+                drawBorder: false,
+                borderDash: [8, 4],
+                color: "#e5e5e5",
+                zeroLineWidth: 0,
+              },
+              ticks: {
+                maxTicksLimit: 5,
+                padding: 10,
+              }
+            }]
+          },
+          tooltips: {
+            backgroundColor: tooltip.backgroundColor,
+            bodyAlign: 'center',
+            bodyFontColor: tooltip.textColor,
+            callbacks: {
+              label: (tooltip, object) => {
+                const yLabel = object.datasets[tooltip.datasetIndex].data[tooltip.index];
+                return '$ ' + yLabel;
+              }
+            },
+            displayColors: false,
+            intersect: false,
+            titleAlign: 'center',
+            titleFontColor: tooltip.textColor,
+            xAlign: 'center',
+            yAlign: 'bottom',
+          }
+        },
+      }
+    );
+  };
+
+  // retrieves expenses for each period from timePeriod[i] to timePeriod[i + 1]
+  async getExpenses(timePeriod) {
+    let data = [], i;
+    for (i = 0; i < timePeriod.length - 1; i++) {
+      await axios.get('api/transactions/summary', {
+        params: {
+          type: 'expenses',
+          start: formatDate(timePeriod[i]),
+          end: formatDate(timePeriod[i + 1])
         }
-      },
+      })
+        .then(res => data.push(Math.abs(res.data.summary.sum).toFixed(2)))
+        .catch(error => console.log(error));
+    }
+    return data;
+  };
+
+  // callback function called after weekly expenses have been retrieved
+  weekCallback = data => {
+    this.setState(currentState => {
+      currentState.weekExpenses = data;
+      return currentState;
     });
-    this.setState({ chart: chart });
-  }
+  };
+
+  // callback function called after monthly expenses have been retrieved
+  monthCallback = data => {
+    this.setState(currentState => {
+      currentState.monthExpenses = data;
+      return currentState;
+    })
+  };
+
+  // callback function called after yearly expenses have been retrieved
+  yearCallback = data => {
+    this.setState(currentState => {
+      currentState.yearExpenses = data;
+      return currentState;
+    })
+  };
 
   render() {
-    const header = (
-      <Row>
-        <Col span={8} align="left">
-          <Typography.Title level={2} className="chartHeader">
-            Expenses
-          </Typography.Title>
-        </Col>
-        <Col span={16} align="right" className="buttonGroup">
-          <Button.Group size="small">
-            <Button onClick={this.handleClick} name="week">Week</Button>
-            <Button onClick={this.handleClick} name="month">Month</Button>
-            <Button onClick={this.handleClick} name="year">Year</Button>
-          </Button.Group>
-        </Col>
-      </Row>
-    );
-
     return (
       <Col {...this.props.span}>
-        <Card className="lineChart" title={header} bordered={false}>
-          {(this.state.weekExpenses.length === 0 || this.state.weekLabels.length === 0)
-            ? <Skeleton active paragraph={{ rows: 6 }} />
-            : <Row>
-                <canvas id="lineChart" />
-              </Row>}
-        </Card>
+        <TransactionsContext.Consumer>
+          {context =>
+            <BaseChart
+              name="lineChart"
+              title="Expenses"
+              subject={context.subject}
+              displayChart={this.displayChart}
+              getExpenses={this.getExpenses}
+              weekCallback={this.weekCallback}
+              monthCallback={this.monthCallback}
+              yearCallback={this.yearCallback}
+            >
+              {(this.state.weekExpenses.length === 0 || this.state.weekLabels.length === 0)
+                ? <Skeleton active paragraph={{rows: 6}}/>
+                : <Row>
+                    <canvas id="lineChart"/>
+                  </Row>}
+            </BaseChart>
+          }
+        </TransactionsContext.Consumer>
       </Col>
     )
   }
