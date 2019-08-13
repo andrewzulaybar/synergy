@@ -166,6 +166,29 @@ async function getTransaction(transactionID) {
   return await db.collection(collectionName).findOne({ _id: ObjectId(transactionID) });
 }
 
+/**
+ * Updates the fields of the transaction with the matching transaction ID.
+ *
+ * @param {string} transactionID - The ID of the transaction to update.
+ * @param {Object} transaction - The fields and values of the updated transaction.
+ * @returns {Promise<Object>} - The updated transaction.
+ */
+async function updateTransaction(transactionID, transaction) {
+  await db.collection(collectionName).updateOne(
+    { _id: ObjectId(transactionID) },
+    {
+      $set: {
+        amount: transaction.amount,
+        description: transaction.description,
+        method: transaction.method,
+        tags: transaction.tags,
+        date: transaction.date,
+      }
+    },
+  );
+  transaction['_id'] = transactionID;
+  return transaction;
+}
 
 module.exports = {
   addTransaction,
@@ -174,4 +197,5 @@ module.exports = {
   getSummary,
   getTags,
   getTransaction,
+  updateTransaction
 };

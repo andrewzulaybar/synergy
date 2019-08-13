@@ -8,7 +8,7 @@ const {
   getSummary,
   getTags,
   getTransaction,
-
+  updateTransaction,
 } = require('../database/transactions');
 
 const router = express.Router();
@@ -110,6 +110,23 @@ router.get('/:transactionId', (req, res) => {
       res.send({ transaction: transaction })
     )
     .catch( error => {
+      res.send({ transaction: {} });
+      console.log(error);
+    });
+});
+
+/**
+ * UPDATE the given transaction's fields.
+ */
+router.put('/:transactionId', (req, res) => {
+  const transactionID = req.params.transactionId;
+  const transaction = req.body.transaction;
+  transaction.date = new Date(transaction.date);
+  updateTransaction(transactionID, transaction)
+    .then(transaction =>
+      res.send({ transaction: transaction })
+    )
+    .catch(error => {
       res.send({ transaction: {} });
       console.log(error);
     });
