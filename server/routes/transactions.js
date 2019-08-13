@@ -7,6 +7,8 @@ const {
   getTransactions,
   getSummary,
   getTags,
+  getTransaction,
+
 } = require('../database/transactions');
 
 const router = express.Router();
@@ -94,6 +96,21 @@ router.get('/tags', (req, res) => {
     )
     .catch(error => {
       res.send({ tags: [] });
+      console.log(error);
+    });
+});
+
+/**
+ * GET transaction with given ID.
+ */
+router.get('/:transactionId', (req, res) => {
+  const transactionID = req.params.transactionId;
+  getTransaction(transactionID)
+    .then(transaction =>
+      res.send({ transaction: transaction })
+    )
+    .catch( error => {
+      res.send({ transaction: {} });
       console.log(error);
     });
 });

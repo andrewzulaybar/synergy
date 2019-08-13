@@ -156,10 +156,22 @@ async function getTags() {
   return await db.collection(collectionName).distinct('tags');
 }
 
+/**
+ * Retrieves the entry with the matching transaction ID.
+ *
+ * @param {string} transactionID - The ID of the transaction to search for.
+ * @returns {Promise<Object>} - The transaction that matches the given ID.
+ */
+async function getTransaction(transactionID) {
+  return await db.collection(collectionName).findOne({ _id: ObjectId(transactionID) });
+}
+
+
 module.exports = {
   addTransaction,
   deleteTransactions,
   getTransactions,
   getSummary,
   getTags,
+  getTransaction,
 };
