@@ -11,7 +11,7 @@ const collectionName = 'transactionsCollection';
  * @param {Object} transaction - The transaction to be added.
  * @returns {Promise<ObjectId>} - ObjectId of the newly created transaction.
  */
-async function addNewTransaction(transaction) {
+async function addTransaction(transaction) {
   const doc = await db.collection(collectionName).insertOne(transaction);
   return doc.insertedId;
 }
@@ -19,14 +19,13 @@ async function addNewTransaction(transaction) {
 /**
  * Deletes transactions from database and returns the deleted transaction IDs.
  *
- * @param {Array<String>} transactionIDs - The list of transaction IDs to be deleted.
- * @returns {Promise<Array<String>>} - List of transaction IDs deleted.
+ * @param {string[]} transactionIDs - The list of transaction IDs to be deleted.
+ * @returns {Promise<string[]>} - The list of transaction IDs deleted.
  */
 async function deleteTransactions(transactionIDs) {
-  let i, transactionsToDelete = [];
-  for (i = 0; i < transactionIDs.length; i++) {
+  let transactionsToDelete = [];
+  for (let i = 0; i < transactionIDs.length; i++)
     transactionsToDelete.push(new ObjectId(transactionIDs[i]));
-  }
   await db.collection(collectionName).deleteMany(
     {
       _id: {
@@ -38,6 +37,33 @@ async function deleteTransactions(transactionIDs) {
 }
 
 /**
+ * Retrieves list of transactions from database, sorted in reverse chronological order.
+ *
+ * @returns {Promise<Object[]>} - The user's list of transactions.
+ */
+async function getTransactions() {
+  return await db.collection(collectionName).aggregate(
+    [
+      {
+        $project: {
+          _id: 1,
+          amount: 1,
+          description: 1,
+          method: 1,
+          tags: 1,
+          date: {
+            $dateToString: {
+              date: '$date',
+              format: '%Y-%m-%d'
+            }
+          }
+        }
+      }
+    ]
+  ).sort({ date: -1 }).toArray();
+}
+
+/**
  * Retrieves summary of transactions.
  *
  * @param {string} type - The type of summary to retrieve: 'expenses' or 'income'.
@@ -46,7 +72,7 @@ async function deleteTransactions(transactionIDs) {
  * @param {Date} end - The end date for the summary.
  * @returns {Promise<Object>} - Summary statistics for the given time period.
  */
-async function retrieveSummary(type, tag, start, end) {
+async function getSummary(type, tag, start, end) {
   let summary;
 
   const match = {
@@ -111,7 +137,7 @@ async function retrieveSummary(type, tag, start, end) {
     summary['type'] = 'all';
 
   if (tag) {
-    const tags = await retrieveTags();
+    const tags = await getTags();
     if (tags.includes(tag))
       summary['tag'] = tag;
     else
@@ -124,43 +150,16 @@ async function retrieveSummary(type, tag, start, end) {
 /**
  * Retrieves distinct list of tags from database.
  *
- * @returns {Promise<Array>} - The user's distinct list of tags.
+ * @returns {Promise<[]>} - The user's distinct list of tags.
  */
-async function retrieveTags() {
+async function getTags() {
   return await db.collection(collectionName).distinct('tags');
 }
 
-/**
- * Retrieves list of transactions from database.
- *
- * @returns {Promise<Array>} - The user's list of transactions.
- */
-async function retrieveTransactions() {
-  return await db.collection(collectionName).aggregate(
-    [
-      {
-        $project: {
-          _id: 1,
-          amount: 1,
-          description: 1,
-          method: 1,
-          tags: 1,
-          date: {
-            $dateToString: {
-              date: '$date',
-              format: '%Y-%m-%d'
-            }
-          }
-        }
-      }
-    ]
-  ).sort({ date: -1 }).toArray();
-}
-
 module.exports = {
-  addNewTransaction,
+  addTransaction,
   deleteTransactions,
-  retrieveSummary,
-  retrieveTags,
-  retrieveTransactions
+  getTransactions,
+  getSummary,
+  getTags,
 };

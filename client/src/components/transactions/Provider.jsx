@@ -36,7 +36,12 @@ class Provider extends Subject {
 
   // handler for deleting transactions
   handleDelete = transactionIDs => {
-    this.deleteTransactions(transactionIDs);
+    const data = { data: { transactionIDs: transactionIDs }};
+    axios.delete('/api/transactions', data)
+      .then(res =>
+        this.removeDeletedTransactions(res.data.transactionIDs)
+      )
+      .catch(error => console.log(error));
   };
 
   // retrieves list of transactions
@@ -53,19 +58,9 @@ class Provider extends Subject {
     axios.post('/api/transactions', transaction)
       .then(res =>
         this.setState(
-          { transactions: this.insertNewTransaction(res.data) },
+          {transactions: this.insertNewTransaction(res.data.transaction)},
           () => this.notifyAllObservers()
         )
-      )
-      .catch(error => console.log(error));
-  };
-
-  // helper for deleting given transactions
-  deleteTransactions(transactionIDs) {
-    const data = { data: { transactionIDs: transactionIDs }};
-    axios.delete('/api/transactions', data)
-      .then(res =>
-        this.removeDeletedTransactions(res.data.transactionIDs)
       )
       .catch(error => console.log(error));
   };
