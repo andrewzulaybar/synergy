@@ -2,10 +2,45 @@ import { Button, Col, DatePicker, Form, Input, Modal, Select, Typography } from 
 import axios from 'axios';
 import React, { Component } from 'react';
 
+const amountRules = [
+  {
+    required: true,
+    message: 'Please enter an amount!',
+  },
+  {
+    pattern: /^(-?[0-9])+(\.[0-9]{2})?$/,
+    message: 'Please enter a valid amount!',
+  }
+];
+
+const descriptionRules = [
+  {
+    required: true,
+    message: 'Please enter a description!',
+    whitespace: true
+  }
+];
+
+const methodRules = [
+  {
+    required: true,
+    message: 'Please select a payment method!',
+    whitespace: true
+  }
+];
+
+const dateRules = [
+  {
+    required: true,
+    message: 'Please select a date!',
+  }
+];
+
+let listOfTags = [];
+
 class Add extends Component {
   state = {
     confirmLoading: false,
-    tags: [],
     visible: false,
   };
 
@@ -33,7 +68,7 @@ class Add extends Component {
             </Select.Option>
           )
         );
-        this.setState({ tags: tags });
+        listOfTags = tags;
       })
       .catch(error => console.log(error));
   };
@@ -95,42 +130,21 @@ class Add extends Component {
     const amount = (
       <Form.Item label="Amount" {...formItemLayout}>
         {getFieldDecorator('amount', {
-          rules: [
-            {
-              required: true,
-              message: 'Please enter an amount!',
-            },
-            {
-              pattern: /^(-?[0-9])+(\.[0-9]{2})?$/,
-              message: 'Please enter a valid amount!',
-            }
-          ],
+          rules: amountRules,
         })(<Input placeholder="Enter a dollar amount" allowClear />)}
       </Form.Item>
     );
     const description = (
       <Form.Item label="Description" {...formItemLayout}>
         {getFieldDecorator('description', {
-          rules: [
-            {
-              required: true,
-              message: 'Please enter a description!',
-              whitespace: true
-            }
-          ],
+          rules: descriptionRules,
         })(<Input placeholder="Enter a description" allowClear />)}
       </Form.Item>
     );
     const method = (
       <Form.Item label="Method" {...formItemLayout}>
         {getFieldDecorator('method', {
-          rules: [
-            {
-              required: true,
-              message: 'Please input your nickname!',
-              whitespace: true
-            }
-          ],
+          rules: methodRules,
         })(
           <Select placeholder="Select a method of payment" allowClear>
             <Select.Option value="Debit">Debit</Select.Option>
@@ -143,12 +157,7 @@ class Add extends Component {
     const date = (
       <Form.Item label="Date" {...formItemLayout}>
         {getFieldDecorator('date', {
-          rules: [
-            {
-              required: true,
-              message: 'Please select a date!',
-            }
-          ],
+          rules: dateRules,
         })(<DatePicker placeholder="Select a date" allowClear />)}
       </Form.Item>
     );
@@ -158,7 +167,7 @@ class Add extends Component {
           rules: [],
         })(
           <Select mode="tags" placeholder="Select optional tags" allowClear>
-            {this.state.tags}
+            {listOfTags}
           </Select>
         )}
       </Form.Item>
@@ -212,3 +221,10 @@ class Add extends Component {
 Add = Form.create({ name: 'add-transaction' })(Add);
 
 export default Add;
+export {
+  amountRules,
+  descriptionRules,
+  methodRules,
+  dateRules,
+  listOfTags,
+}

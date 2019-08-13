@@ -34,6 +34,20 @@ class Provider extends Subject {
     this.createNewTransaction(newData);
   };
 
+  // handler for updating transaction
+  handleUpdate = (transaction, id) => {
+    const newData = [...this.state.transactions];
+    const index = newData.findIndex(item => id === item._id);
+
+    axios.put('api/transactions/' + id, transaction)
+      .then(res => {
+        res.data.transaction.date = res.data.transaction.date.split('T')[0];
+        newData.splice(index, 1, {...res.data.transaction});
+        this.setState({ transactions: newData });
+      })
+      .catch(error => console.log(error));
+  };
+
   // handler for deleting transactions
   handleDelete = transactionIDs => {
     const data = { data: { transactionIDs: transactionIDs }};
@@ -47,9 +61,10 @@ class Provider extends Subject {
   // retrieves list of transactions
   getTransactions() {
     axios.get('/api/transactions')
-      .then(res =>
-        this.setState({ transactions: res.data.transactions })
-      )
+      .then(res => {
+        this.setState({transactions: res.data.transactions});
+        this.notifyAllObservers();
+      })
       .catch(error => console.log(error))
   };
 
@@ -89,6 +104,7 @@ class Provider extends Subject {
       <TransactionsContext.Provider value={{
         state: this.state,
         handleAdd: this.handleAdd,
+        handleUpdate: this.handleUpdate,
         handleDelete: this.handleDelete,
         subject: this,
       }}>

@@ -25,7 +25,7 @@ body {
 /* main content layout */
 main.ant-layout-content {
     padding: 0 16px 16px 16px;
-    min-width: 560px;
+    min-width: 770px;
 }
 
 /* card headers */
@@ -57,6 +57,11 @@ h2.ant-typography {
 /* transactions card body */
 .transactions .ant-card-body {
     padding-bottom: 5px;
+}
+
+/* edit transactions selection cells */
+.ant-select.ant-select-enabled.ant-select-allow-clear {
+    width: 100%;
 }
 
 /* hover on transactions table row */

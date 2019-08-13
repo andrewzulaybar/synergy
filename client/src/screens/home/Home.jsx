@@ -28,11 +28,7 @@ class Home extends Component {
                     <Breakdown span={{ xs: 24, lg: 12 }} />
                   </Row>
                   <Row type="flex" justify="space-around">
-                    <List
-                      handleDelete={context.handleDelete}
-                      transactions={context.state.transactions}
-                      span={{ xs: 24 }}
-                    />
+                    <List span={{ xs: 24 }} subject={context.subject} />
                   </Row>
                 </>
               )}
