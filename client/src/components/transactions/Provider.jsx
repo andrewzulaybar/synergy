@@ -36,14 +36,15 @@ class Provider extends Subject {
 
   // handler for updating transaction
   handleUpdate = (transaction, id) => {
-    const newData = [...this.state.transactions];
-    const index = newData.findIndex(item => id === item._id);
+    let transactions = this.state.transactions;
+    const index = transactions.findIndex(item => id === item._id);
+    transactions.splice(index, 1);
 
     axios.put('api/transactions/' + id, transaction)
       .then(res => {
         res.data.transaction.date = res.data.transaction.date.split('T')[0];
-        newData.splice(index, 1, {...res.data.transaction});
-        this.setState({ transactions: newData });
+        const newTransactions = this.insertNewTransaction({...res.data.transaction}, true);
+        this.setState({ transactions: newTransactions });
       })
       .catch(error => console.log(error));
   };
