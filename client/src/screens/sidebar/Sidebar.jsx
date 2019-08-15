@@ -31,6 +31,12 @@ class Sidebar extends Component {
               <span className="nav-text">Home</span>
             </NavLink>
           </Menu.Item>
+          <Menu.Item key="/accounts">
+            <NavLink to="/accounts">
+              <Icon type="credit-card" />
+              <span className="nav-text">Accounts</span>
+            </NavLink>
+          </Menu.Item>
         </Menu>
       </Layout.Sider>
     );

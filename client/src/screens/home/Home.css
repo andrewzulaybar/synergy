@@ -57,6 +57,7 @@ h2.ant-typography {
 /* transactions card body */
 .transactions .ant-card-body {
     padding-bottom: 5px;
+    margin-bottom: 16px;
 }
 
 /* edit transactions selection cells */
