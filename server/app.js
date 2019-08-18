@@ -12,9 +12,11 @@ database.connectToServer((err) => {
 
   const indexRouter = require('./routes/index');
   const transactionsRouter = require('./routes/transactions');
+  const accountsRouter = require('./routes/accounts');
 
   app.use('/api', indexRouter);
   app.use('/api/transactions', transactionsRouter);
+  app.use('/api/accounts', accountsRouter);
 });
 
 module.exports = app;
