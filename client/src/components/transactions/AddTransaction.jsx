@@ -1,6 +1,8 @@
-import { Button, Col, DatePicker, Form, Input, Modal, Select, Typography } from "antd";
+import { Button, Col, DatePicker, Form, Input, Modal, Select, Typography } from 'antd';
 import axios from 'axios';
 import React, { Component } from 'react';
+
+import './AddTransaction.css';
 
 const amountRules = [
   {
@@ -38,7 +40,7 @@ const dateRules = [
 
 let listOfTags = [];
 
-class Add extends Component {
+class AddTransaction extends Component {
   state = {
     confirmLoading: false,
     visible: false,
@@ -218,9 +220,9 @@ class Add extends Component {
   }
 }
 
-Add = Form.create({ name: 'add-transaction' })(Add);
+AddTransaction = Form.create({ name: 'add-transaction' })(AddTransaction);
 
-export default Add;
+export default AddTransaction;
 export {
   amountRules,
   descriptionRules,

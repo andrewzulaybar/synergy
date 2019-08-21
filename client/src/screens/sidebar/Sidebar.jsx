@@ -1,5 +1,5 @@
 import { Icon, Layout, Menu } from 'antd';
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
 
 class Sidebar extends Component {

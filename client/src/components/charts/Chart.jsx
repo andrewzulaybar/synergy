@@ -1,7 +1,7 @@
-import { Button, Card, Col, Row, Typography } from "antd";
+import { Button, Card, Col, Row, Typography } from 'antd';
 import React, { Component } from 'react';
 
-import { getLastFiveWeeks, getLastSevenDays, getLastTwelveMonths } from "../../utils/date";
+import { getLastFiveWeeks, getLastSevenDays, getLastTwelveMonths } from '../../utils/date';
 
 class Chart extends Component {
   state = {

@@ -1,13 +1,12 @@
 import { Layout, Row } from 'antd';
 import React, { Component } from 'react';
-import "antd/dist/antd.css";
 
-import Breakdown from "../../components/charts/Breakdown";
-import Expenses from "../../components/charts/Expenses";
-import Group from "../../components/summary/Group";
-import List from "../../components/transactions/List";
-import Provider, { TransactionsContext } from "../../components/transactions/Provider";
-import './Home.css';
+import Breakdown from '../../components/charts/Breakdown';
+import Expenses from '../../components/charts/Expenses';
+import Group from '../../components/summary/Group';
+import ListOfTransactions from '../../components/transactions/ListOfTransactions';
+import Provider, { TransactionsContext } from '../../components/transactions/Provider';
+import '../root/Root.css';
 
 class Home extends Component {
   render() {
@@ -28,7 +27,7 @@ class Home extends Component {
                     <Breakdown span={{ xs: 24, lg: 12 }} />
                   </Row>
                   <Row type="flex" justify="space-around">
-                    <List span={{ xs: 24 }} subject={context.subject} />
+                    <ListOfTransactions span={{ xs: 24 }} subject={context.subject} />
                   </Row>
                 </>
               )}

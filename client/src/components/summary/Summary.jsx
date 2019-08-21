@@ -1,8 +1,8 @@
-import { Card, Col, Icon, Row } from "antd";
+import { Card, Col, Icon, Row } from 'antd';
 import { gold, green, red } from '@ant-design/colors';
 import React, { Component } from 'react';
 
-import '../../screens/home/Home.css';
+import './Summary.css';
 
 class Summary extends Component {
   render() {

@@ -1,0 +1,26 @@
+/* transactions */
+.transactions {
+    text-align: left;
+    margin-top: 16px;
+}
+
+/* transactions card header */
+.transactions .ant-typography {
+    padding-top: 3px;
+}
+
+/* transactions card body */
+.transactions .ant-card-body {
+    padding-bottom: 5px;
+    margin-bottom: 16px;
+}
+
+/* edit transactions selection cells */
+.ant-select.ant-select-enabled.ant-select-allow-clear {
+    width: 100%;
+}
+
+/* hover on transactions table row */
+.ant-table-tbody > tr.ant-table-row.ant-table-row-level-0:hover > td {
+    background-color: rgba(104, 145, 229, 0.1);
+}

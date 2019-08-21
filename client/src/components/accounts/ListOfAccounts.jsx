@@ -3,6 +3,7 @@ import axios from 'axios';
 import React, { Component } from 'react';
 
 import AddAccount from './AddAccount';
+import './ListOfAccounts.css';
 
 // generates format for accounts in allAccounts that match type
 function formatAccounts(type, allAccounts) {

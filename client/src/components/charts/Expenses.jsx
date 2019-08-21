@@ -1,13 +1,13 @@
 import { Col, Row, Skeleton } from 'antd';
-import axios from "axios";
+import axios from 'axios';
 import Chart from 'chart.js';
 import React, { Component } from 'react';
 
 import BaseChart from './Chart';
-import { TransactionsContext } from "../transactions/Provider";
+import { TransactionsContext } from '../transactions/Provider';
 import { lineChart, tooltip } from '../../utils/color';
-import {getDayLabels, getWeekLabels, getMonthLabels, formatDate} from '../../utils/date';
-import '../../screens/home/Home.css';
+import { getDayLabels, getWeekLabels, getMonthLabels, formatDate } from '../../utils/date';
+import './Expenses.css';
 
 class Expenses extends Component {
   state = {

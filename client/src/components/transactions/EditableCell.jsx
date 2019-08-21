@@ -1,9 +1,8 @@
-import { Form, Input, Select } from "antd";
-import React, { Component } from "react";
+import { Form, Input, Select } from 'antd';
+import React, { Component } from 'react';
 
-import { amountRules, dateRules, descriptionRules, methodRules, listOfTags } from './Add';
-import { EditableContext } from './List';
-import '../../screens/home/Home.css';
+import { amountRules, dateRules, descriptionRules, methodRules, listOfTags } from './AddTransaction';
+import { EditableContext } from './ListOfTransactions';
 
 // retrieves input box depending on input type
 function getInput(type) {

@@ -4,10 +4,10 @@ import Chart from 'chart.js';
 import React, { Component } from 'react';
 
 import BaseChart from './Chart';
-import { TransactionsContext } from "../transactions/Provider";
+import { TransactionsContext } from '../transactions/Provider';
 import { doughnutChart, tooltip } from '../../utils/color';
-import {formatDate} from "../../utils/date";
-import '../../screens/home/Home.css';
+import { formatDate } from '../../utils/date';
+import './Breakdown.css';
 
 // returns index of maximum value in array
 function findIndexOfMax(array) {

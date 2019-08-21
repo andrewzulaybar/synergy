@@ -1,0 +1,9 @@
+/* add transaction */
+.add-transaction {
+    text-align: left;
+}
+
+/* date picker */
+.ant-calendar-picker {
+    width: 100%;
+}

@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import { Layout } from "antd";
+import { Layout } from 'antd';
 
-import './Accounts.css'
-import ListOfAccounts from "../../components/accounts/ListOfAccounts";
+import ListOfAccounts from '../../components/accounts/ListOfAccounts';
+import '../root/Root.css';
 
 class Accounts extends Component {
   render() {

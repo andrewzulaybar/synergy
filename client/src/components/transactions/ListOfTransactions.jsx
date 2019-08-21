@@ -2,10 +2,10 @@ import { Button, Card, Col, Form, Row, Skeleton, Table, Tag, Typography } from '
 import { green, red } from '@ant-design/colors';
 import React, { Component } from 'react';
 
-import Add from './Add';
+import AddTransaction from './AddTransaction';
 import EditableCell from './EditableCell';
 import { TransactionsContext } from './Provider';
-import '../../screens/home/Home.css';
+import './ListOfTransactions.css';
 
 const schema = [
   'Amount',
@@ -66,7 +66,7 @@ const columns = (() => {
 
 const EditableContext = React.createContext();
 
-class List extends Component {
+class ListOfTransactions extends Component {
   state = {
     editingKey: '',
     selected: [],
@@ -156,7 +156,7 @@ class List extends Component {
         <Col span={12} align="right">
           <TransactionsContext.Consumer>
             {context => (
-              <Add handleAdd={context.handleAdd} subject={context.subject} />
+              <AddTransaction handleAdd={context.handleAdd} subject={context.subject} />
             )}
           </TransactionsContext.Consumer>
         </Col>
@@ -227,7 +227,7 @@ class List extends Component {
   }
 }
 
-List = Form.create()(List);
+ListOfTransactions = Form.create()(ListOfTransactions);
 
 export { EditableContext };
-export default List;
+export default ListOfTransactions;

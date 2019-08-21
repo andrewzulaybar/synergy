@@ -1,0 +1,45 @@
+/* body */
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* root */
+div#root {
+    height: 100%;
+}
+
+/* content layout */
+.ant-layout {
+    height: 100%;
+}
+
+/* main content layout */
+main.ant-layout-content {
+    padding: 0 16px 16px 16px;
+    min-width: 770px;
+}
+
+/* card headers */
+.ant-card-head h2.ant-typography {
+    color: rgba(51, 51, 51, 0.75);
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    margin-bottom: 0;
+    text-transform: uppercase;
+}
+
+/* card body */
+div.ant-card-body {
+    padding-top: 5px;
+}
+
+/* loading skeleton */
+.ant-skeleton {
+    padding: 0;
+}
