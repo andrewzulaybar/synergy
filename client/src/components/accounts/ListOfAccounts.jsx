@@ -1,5 +1,4 @@
 import { Card, Col, List, Row, Skeleton } from 'antd';
-import axios from 'axios';
 import React, { Component } from 'react';
 
 import AddAccount from './AddAccount';
@@ -28,38 +27,9 @@ function formatAccounts(type, allAccounts) {
 }
 
 class ListOfAccounts extends Component {
-  state = {
-    accounts: [],
-    loading: true,
-  };
-
-  componentDidMount() {
-    this.getAccounts();
-  }
-
-  // retrieves accounts across all items from API
-  getAccounts = () => {
-    this.setState({ loading: true });
-    axios.get('/api/accounts/')
-      .then(res => this.getAccountsWithNames(res.data.accounts))
-      .catch(error => console.log(error));
-  };
-
-  // filters list of accounts and keeps only ones with names
-  getAccountsWithNames = data => {
-    const accounts = [];
-    for (let i = 0; i < data.length; i++) {
-      for (const [, value] of Object.entries(data[i])) {
-        if (value.name)
-          accounts.push(value);
-      }
-    }
-    this.setState({ accounts: accounts, loading: false });
-  };
-
   render() {
-    const credit = formatAccounts('credit', this.state.accounts);
-    const depository = formatAccounts('depository', this.state.accounts);
+    const credit = formatAccounts('credit', this.props.accounts);
+    const depository = formatAccounts('depository', this.props.accounts);
 
     const header = (
       <Row>
@@ -67,14 +37,14 @@ class ListOfAccounts extends Component {
           <h2 className="ant-typography">All Accounts</h2>
         </Col>
         <Col span={6} align="right">
-          <AddAccount onSuccess={this.getAccounts} />
+          <AddAccount onSuccess={this.props.onSuccess} />
         </Col>
       </Row>
     );
 
     return (
-      <Card id="accounts" bordered={false} title={header}>
-        {!this.state.loading
+      <Card id="all-accounts" bordered={false} title={header}>
+        {!this.props.loading
           ? <Col span={24}>
               <Card bordered={false} id="credit" title={<h2>Credit</h2>}>
                 <List
@@ -99,7 +69,8 @@ class ListOfAccounts extends Component {
                 />
               </Card>
             </Col>
-          : <Skeleton active paragraph={{ rows: 6 }} />}
+          : <Skeleton active paragraph={{ rows: 6 }} />
+        }
       </Card>
     );
   }

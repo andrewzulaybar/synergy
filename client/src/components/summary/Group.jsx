@@ -129,11 +129,6 @@ class Group extends Component {
           title="Monthly Income"
           amount={monthlyIncome}
         />
-        <Summary
-          percent={73}
-          title="Monthly Savings"
-          amount={150.00}
-        />
       </>
     );
   }

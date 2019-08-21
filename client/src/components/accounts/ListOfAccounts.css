@@ -1,10 +1,11 @@
 /* accounts card */
-#accounts {
-    margin-top: 8px;
+#all-accounts {
+    margin-top: 16px;
+    margin-bottom: 16px;
 }
 
 /* card body */
-#accounts div.ant-card-body {
+#all-accounts div.ant-card-body {
     padding: 24px;
     text-align: left;
 }
@@ -14,12 +15,12 @@
     margin-bottom: 16px;
 }
 
-/* card head and card head title */
+/* card head */
 #credit .ant-card-head,
-#depository .ant-card-head,
-#credit .ant-card-head-title,
-#depository .ant-card-head-title {
-    padding: 0;
+#depository .ant-card-head {
+    background-color: rgba(240, 242, 245, 0.5);
+    border-bottom: 0;
+    padding-left: 16px;
 }
 
 /* card headers */
@@ -36,7 +37,7 @@
 /* card body */
 #credit div.ant-card-body,
 #depository div.ant-card-body {
-    padding: 0;
+    padding: 16px;
 }
 
 /* account names and amount */
