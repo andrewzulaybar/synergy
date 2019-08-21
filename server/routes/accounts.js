@@ -13,24 +13,6 @@ const client = new plaid.Client(
 );
 
 /**
- * Exchange public token for access token.
- */
-router.post('/get_access_token', (req, res) => {
-  client.exchangePublicToken(
-    req.body.public_token,
-    async (error, tokenResponse) => {
-      if (error)
-        console.log(error);
-
-      const itemID = tokenResponse.item_id;
-      const accessToken = tokenResponse.access_token;
-      await addItem(1, itemID, accessToken);
-      return res.json({ error: false });
-    }
-  );
-});
-
-/**
  * GET all accounts, across all items.
  */
 router.get('/', (req, res) => {
@@ -49,6 +31,24 @@ router.get('/', (req, res) => {
       res.send({ accounts: accounts });
     })
     .catch(error => console.log(error));
+});
+
+/**
+ * POST a new item. Exchange public token for access token.
+ */
+router.post('/', (req, res) => {
+  client.exchangePublicToken(
+    req.body.publicToken,
+    async (error, tokenResponse) => {
+      if (error)
+        console.log(error);
+
+      const itemID = tokenResponse.item_id;
+      const accessToken = tokenResponse.access_token;
+      await addItem(1, itemID, accessToken);
+      res.json({ error: false });
+    }
+  );
 });
 
 /**

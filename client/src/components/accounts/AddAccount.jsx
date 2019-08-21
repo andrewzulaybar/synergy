@@ -1,19 +1,14 @@
+import axios from 'axios';
 import React, { Component } from 'react';
 import PlaidLink from 'react-plaid-link';
-import axios from "axios";
 
 class AddAccount extends Component {
-  handleOnSuccess(token, metadata) {
-    const body = {
-      public_token: token,
-      accounts: metadata.accounts,
-      institution: metadata.institution,
-      link_session_id: metadata.link_session_id,
-    };
-    axios.post('/api/accounts/get_access_token', body)
-      .then(res => console.log(res))
+  handleOnSuccess = token => {
+    const body = { publicToken: token };
+    axios.post('/api/accounts/', body)
+      .then(() => this.props.onSuccess())
       .catch(error => console.log(error));
-  }
+  };
 
   render() {
     const styles = {};
