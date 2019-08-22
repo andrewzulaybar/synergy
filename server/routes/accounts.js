@@ -9,7 +9,7 @@ const client = new plaid.Client(
   process.env.PLAID_CLIENT_ID,
   process.env.PLAID_SECRET_KEY,
   process.env.PLAID_PUBLIC_KEY,
-  plaid.environments.sandbox
+  plaid.environments.development
 );
 
 /**
@@ -60,15 +60,11 @@ router.post('/', (req, res) => {
 async function getAccounts(item) {
   let response = {};
   await new Promise( resolve => {
-    client.getAuth(item.accessToken, {}, (error, results) => {
+    client.getAccounts(item.accessToken, {}, (error, results) => {
       if (error)
         return new Error();
 
       response = {...results.accounts};
-      if (results.numbers.ach.length > 0)
-        response = {...response, ...results.numbers.ach };
-      if (results.numbers.eft.length > 0)
-        response = {...response, ...results.numbers.eft };
       resolve();
     })
   });

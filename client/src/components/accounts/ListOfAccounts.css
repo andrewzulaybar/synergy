@@ -12,7 +12,7 @@
 
 /* credit card */
 #credit {
-    margin-bottom: 16px;
+    margin-bottom: 8px;
 }
 
 /* card head */
@@ -20,37 +20,52 @@
 #depository .ant-card-head {
     background-color: rgba(240, 242, 245, 0.5);
     border-bottom: 0;
+    border-radius: 5px 5px 0 0;
     padding-left: 16px;
+}
+
+/* card head title */
+#credit .ant-card-head-title,
+#depository .ant-card-head-title {
+    padding-top: 12px;
+    padding-bottom: 12px;
 }
 
 /* card headers */
 #credit h2,
 #depository h2 {
     color: rgba(51, 51, 51, 0.75);
-    font-size: 20px;
-    font-weight: 500;
-    letter-spacing: 2px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0;
     margin-bottom: 0;
-    text-transform: uppercase;
+    text-transform: none;
 }
 
 /* card body */
 #credit div.ant-card-body,
 #depository div.ant-card-body {
-    padding: 16px;
+    padding: 8px 16px;
 }
 
-/* account names and amount */
-#credit h1,
-#depository h1 {
+/* list items */
+#credit li.ant-list-item,
+#depository li.ant-list-item {
+    padding: 8px 0;
+}
+
+/* account names and balance */
+#credit p,
+#depository p {
     color: rgba(51, 51, 51, 0.75);
-    font-size: 18px;
+    font-size: 14px;
+    font-weight: normal;
     margin-bottom: 0;
 }
 
-/* account official names */
-#credit small,
-#depository small {
-    color: rgba(51, 51, 51, 0.4);
-    font-size: 12px;
+/* balance */
+#credit p#balance,
+#depository p#balance {
+    color: rgba(51, 51, 51, 0.75);
+    font-weight: 600;
 }

@@ -10,14 +10,14 @@ function formatAccounts(type, allAccounts) {
   for (let i = 0; i < allAccounts.length; i++) {
     const account = allAccounts[i];
     if (account.type === type) {
+      const balance = account.balances.current;
       accounts.push(
         <Row type="flex" justify="space-around" align="middle">
           <Col span={18} align="left">
-            <h1>{account.name}</h1>
-            <small>{account.official_name}</small>
+            <p>{account.official_name}</p>
           </Col>
           <Col span={6} align="right">
-            <h1>$ {account.balances.current.toFixed(2)}</h1>
+            <p id="balance">$ {balance.toFixed(2)}</p>
           </Col>
         </Row>
       );

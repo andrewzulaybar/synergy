@@ -3,7 +3,7 @@ import axios from 'axios';
 import React, { Component } from 'react'
 
 import ListOfAccounts from '../../components/accounts/ListOfAccounts';
-import Summary from "../../components/summary/Summary";
+import Summary from '../../components/summary/Summary';
 import '../root/Root.css';
 
 // calculates sum of debt, savings, and wealth from given accounts
@@ -11,13 +11,14 @@ function calculateSummary(accounts) {
   let debt = 0.00, savings = 0.00, wealth = 0.00;
   for (let i = 0; i < accounts.length; i++) {
     const acc = accounts[i];
+    const balance = acc.balances.current;
     if (acc.type === 'depository') {
       if (acc.subtype === 'checking')
-        wealth += acc.balances.available;
+        wealth += balance;
       else if (acc.subtype === 'savings')
-        savings += acc.balances.available;
+        savings += balance;
     } else if (acc.type === 'credit')
-      debt += acc.balances.current;
+      debt += balance;
   }
   return {
     debt: debt.toFixed(2),

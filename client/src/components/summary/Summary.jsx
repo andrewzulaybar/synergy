@@ -10,28 +10,13 @@ class Summary extends Component {
 
     let icon, styles;
     if (percent > 0) {
-      icon = (
-        <Icon
-          type="caret-up"
-          style={{ fontSize: 16 }}
-        />
-      );
+      icon = <Icon type="caret-up" />;
       styles = { color: green[3] };
     } else if (percent === 0) {
-      icon = (
-        <Icon
-          type="swap"
-          style={{ fontSize: 16}}
-        />
-      );
+      icon = <Icon type="swap" />;
       styles = { color: gold[3] };
     } else {
-      icon = (
-        <Icon
-          type="caret-down"
-          style={{ fontSize: 16 }}
-        />
-      );
+      icon = <Icon type="caret-down" />;
       styles = { color: red[4] };
       percent = -percent;
     }
@@ -48,7 +33,7 @@ class Summary extends Component {
                   </Col>
                 </Row>
                 {this.props.percent &&
-                  <Row>
+                  <Row className="percent-icon">
                     <Col span={2} style={styles}>{icon}</Col>
                     <h4 className="percent" style={styles}>{percent} %</h4>
                   </Row>

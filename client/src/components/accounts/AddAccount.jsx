@@ -11,20 +11,16 @@ class AddAccount extends Component {
   };
 
   render() {
-    const styles = {};
-    const publicKey = process.env.REACT_APP_PLAID_PUBLIC_KEY;
-    const env = 'sandbox';
-
     return (
       <PlaidLink
         className="ant-btn"
         clientName="Synergy"
         countryCodes={['US', 'CA']}
-        env={env}
+        env="development"
         product={["transactions"]}
-        publicKey={publicKey}
+        publicKey={process.env.REACT_APP_PLAID_PUBLIC_KEY}
         onSuccess={this.handleOnSuccess}
-        style={styles}
+        style={{}}
       >
         Add Account
       </PlaidLink>
