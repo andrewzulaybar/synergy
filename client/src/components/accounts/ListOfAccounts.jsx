@@ -2,29 +2,8 @@ import { Card, Col, List, Row, Skeleton } from 'antd';
 import React, { Component } from 'react';
 
 import AddAccount from './AddAccount';
+import { AccountsContext } from './AccountsProvider';
 import './ListOfAccounts.css';
-
-// generates format for accounts in allAccounts that match type
-function formatAccounts(type, allAccounts) {
-  const accounts = [];
-  for (let i = 0; i < allAccounts.length; i++) {
-    const account = allAccounts[i];
-    if (account.type === type) {
-      const balance = account.balances.current;
-      accounts.push(
-        <Row type="flex" justify="space-around" align="middle">
-          <Col span={18} align="left">
-            <p>{account.official_name}</p>
-          </Col>
-          <Col span={6} align="right">
-            <p id="balance">$ {balance.toFixed(2)}</p>
-          </Col>
-        </Row>
-      );
-    }
-  }
-  return accounts;
-}
 
 class ListOfAccounts extends Component {
   render() {
@@ -37,7 +16,9 @@ class ListOfAccounts extends Component {
           <h2 className="ant-typography">All Accounts</h2>
         </Col>
         <Col span={6} align="right">
-          <AddAccount onSuccess={this.props.onSuccess} />
+          <AccountsContext.Consumer>
+            {context => <AddAccount onSuccess={context.getAccounts} />}
+          </AccountsContext.Consumer>
         </Col>
       </Row>
     );
@@ -74,6 +55,28 @@ class ListOfAccounts extends Component {
       </Card>
     );
   }
+}
+
+// generates format for accounts in allAccounts that match type
+function formatAccounts(type, allAccounts) {
+  const accounts = [];
+  for (let i = 0; i < allAccounts.length; i++) {
+    const account = allAccounts[i];
+    if (account.type === type) {
+      const balance = account.balances.current;
+      accounts.push(
+        <Row type="flex" justify="space-around" align="middle">
+          <Col span={18} align="left">
+            <p>{account.official_name}</p>
+          </Col>
+          <Col span={6} align="right">
+            <p id="balance">$ {balance.toFixed(2)}</p>
+          </Col>
+        </Row>
+      );
+    }
+  }
+  return accounts;
 }
 
 export default ListOfAccounts;
