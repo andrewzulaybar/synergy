@@ -25,8 +25,9 @@ class ListOfAccounts extends Component {
 
     return (
       <Card id="all-accounts" bordered={false} title={header}>
-        {!this.props.loading
-          ? <Col span={24}>
+        {this.props.isLoading
+          ? <Skeleton active paragraph={{ rows: 6 }} />
+          : <Col span={24}>
               <Card bordered={false} id="credit" title={<h2>Credit</h2>}>
                 <List
                   itemLayout="horizontal"
@@ -50,7 +51,6 @@ class ListOfAccounts extends Component {
                 />
               </Card>
             </Col>
-          : <Skeleton active paragraph={{ rows: 6 }} />
         }
       </Card>
     );

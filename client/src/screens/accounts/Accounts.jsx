@@ -7,39 +7,41 @@ import Summary from '../../components/summary/Summary';
 import '../root/Root.css';
 
 class Accounts extends Component {
-  state = { loading: true };
+  state = { isLoading: true };
 
-  setLoading = loading => this.setState({ loading });
+  setIsLoading = isLoading => this.setState({ isLoading });
 
   render() {
+    const { isLoading } = this.state;
+
     return (
       <Layout id="accounts">
         <Layout.Content className="accounts">
-          <AccountsProvider setLoading={this.setLoading}>
+          <AccountsProvider setIsLoading={this.setIsLoading}>
             <AccountsContext.Consumer>
               {context => (
                 <>
                   <Row gutter={16}>
                   <Summary
                     amount={context.summary.wealth}
-                    loading={this.state.loading}
                     title="Total Wealth"
+                    isLoading={isLoading}
                   />
                   <Summary
                     amount={context.summary.debt}
-                    loading={this.state.loading}
                     title="Total Debt"
+                    isLoading={isLoading}
                   />
                   <Summary
                     amount={context.summary.savings}
-                    loading={this.state.loading}
                     title="Total Savings"
+                    isLoading={isLoading}
                   />
                   </Row>
                   <Row>
                     <ListOfAccounts
                       accounts={context.accounts}
-                      loading={this.state.loading}
+                      isLoading={isLoading}
                     />
                   </Row>
                 </>
