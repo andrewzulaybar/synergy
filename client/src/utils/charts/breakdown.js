@@ -1,7 +1,14 @@
 import axios from "axios";
 
-import { doughnutChart, tooltip } from "../misc/color";
-import { formatDate } from "../misc/date";
+import { doughnutChart, tooltip } from '../misc/color';
+import { formatDate } from '../misc/date';
+
+/**
+ * The number of tags to show and retrieve breakdowns for.
+ *
+ * @type {number}
+ */
+const numOfTags = 5;
 
 /**
  * Returns data for chart.
@@ -23,9 +30,9 @@ const data = (labels, data) => {
 };
 
 /**
- * Returns options for chart.
+ * The options for the chart.
  *
- * @type Object - The options object.
+ * @type Object
  */
 const options = {
   cutoutPercentage: 70,
@@ -71,14 +78,53 @@ const options = {
 };
 
 /**
+ * Retrieves expenses for past week from API.
+ *
+ * @returns {Promise<Object>} - An object with the list of tags and list of expenses (sorted in decreasing order).
+ */
+function getWeekBreakdown() {
+  const sixDaysAgo = new Date();
+  sixDaysAgo.setDate(sixDaysAgo.getDate() - 6);
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return retrieveData(sixDaysAgo, tomorrow);
+}
+
+/**
+ * Retrieves expenses for past month from API.
+ *
+ * @returns {Promise<Object>} - An object with the list of tags and list of expenses (sorted in decreasing order).
+ */
+function getMonthBreakdown() {
+  const fiveWeeksAgo = new Date();
+  fiveWeeksAgo.setDate(fiveWeeksAgo.getDate() - 5 * 7);
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return retrieveData(fiveWeeksAgo, tomorrow);
+}
+
+/**
+ * Retrieves expenses for past year from API.
+ *
+ * @returns {Promise<Object>} - An object with the list of tags and list of expenses (sorted in decreasing order).
+ */
+function getYearBreakdown() {
+  const twelveMonthsAgo = new Date();
+  twelveMonthsAgo.setDate(1);
+  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 11);
+  const nextMonth = new Date();
+  nextMonth.setFullYear(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 1);
+  return retrieveData(twelveMonthsAgo, nextMonth);
+}
+
+/**
  * Retrieves summaries for each tag between start date and end date.
  *
  * @param {Date} start - The starting date.
  * @param {Date} end - The ending date.
- * @param {number} numOfTags - The maximum number of tags.
- * @returns {Promise<Array>} - An array containing the list of expenses and tags, sorted in decreasing order.
+ * @returns {Promise<Object>} - An object with the list of tags and list of expenses (sorted in decreasing order).
  */
-async function retrieveData(start, end, numOfTags) {
+async function retrieveData(start, end) {
   let data = [];
   let tags = [];
   await axios.get('/api/transactions/tags')
@@ -89,14 +135,10 @@ async function retrieveData(start, end, numOfTags) {
     .then(expensesByTag => data = expensesByTag)
     .catch(error => console.log(error));
 
-  const sortedExpenses = (data.length > 1)
-    ? getExpensesForTopTags([...data], numOfTags)
-    : [];
-  const sortedTags = (data.length > 1)
-    ? getLabelsForTopTags([...data], tags, numOfTags)
-    : [];
+  const sortedExpenses = getExpensesForTopTags([...data]);
+  const sortedTags = getLabelsForTopTags([...data], tags);
 
-  return [sortedExpenses, sortedTags];
+  return { expenses: sortedExpenses, labels: sortedTags }
 }
 
 /**
@@ -133,13 +175,12 @@ async function getExpenses(start, end, tags) {
  * Retrieves expenses for the top (numOfTags - 1) tags, aggregating the rest into 'other'.
  *
  * @param {Array} array - The array of expenses for all tags.
- * @param {number} numOfTags - The maximum number of tags to keep.
  * @returns {Array} - An array containing the expenses for the top (numOfTags) tags.
  */
-function getExpensesForTopTags(array, numOfTags) {
+function getExpensesForTopTags(array) {
   const sortedExpenses = [];
   let i = 0, indexOfMax;
-  while (i < numOfTags - 1) {
+  while (i < numOfTags - 1 && array.length >= 1) {
     indexOfMax = findIndexOfMax(array);
     sortedExpenses.push(array[indexOfMax]);
     array.splice(indexOfMax, 1);
@@ -156,13 +197,12 @@ function getExpensesForTopTags(array, numOfTags) {
  *
  * @param {number[]} array - The array of expenses for all tags.
  * @param {string[]} tags - The array of names of all tags.
- * @param {number} numOfTags - The maximum number of tags to keep.
  * @returns {Array} - An array containing the names for the top (numOfTags) tags.
  */
-function getLabelsForTopTags(array, tags, numOfTags) {
+function getLabelsForTopTags(array, tags) {
   const copyOfTags = [...tags];
   let i = 0, indexOfMax, sortedTags = [];
-  while (i < numOfTags - 1) {
+  while (i < numOfTags - 1 && array.length >= 1) {
     indexOfMax = findIndexOfMax(array);
     sortedTags.push(formatTag(copyOfTags[indexOfMax]));
     array.splice(indexOfMax, 1);
@@ -204,5 +244,7 @@ function formatTag(tag) {
 export {
   data,
   options,
-  retrieveData
+  getWeekBreakdown,
+  getMonthBreakdown,
+  getYearBreakdown
 };

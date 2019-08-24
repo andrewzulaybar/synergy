@@ -1,6 +1,7 @@
-import { lineChart, tooltip } from "../misc/color";
-import axios from "axios";
-import {formatDate} from "../misc/date";
+import axios from 'axios';
+
+import { lineChart, tooltip } from '../misc/color';
+import { formatDate, getLastFiveWeeks, getLastSevenDays, getLastTwelveMonths } from '../misc/date';
 
 /**
  * Returns data for chart.
@@ -24,9 +25,9 @@ const data = (labels, data) => {
 };
 
 /**
- * Returns options for chart.
+ * The options for the chart.
  *
- * @type Object - The options object.
+ * @type Object
  */
 const options = {
   hover: {
@@ -84,6 +85,45 @@ const options = {
 };
 
 /**
+ * Retrieves expenses for past week from API.
+ *
+ * @returns {Promise<Array>} - An array of expenses summaries for each day in the past week.
+ */
+function getWeekExpenses() {
+  const lastEightDays = getLastSevenDays();
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  lastEightDays.push(tomorrow);
+  return getExpenses(lastEightDays);
+}
+
+/**
+ * Retrieves expenses for past month from API.
+ *
+ * @returns {Promise<Array>} - An array of expenses summaries for each week in the past month.
+ */
+function getMonthExpenses() {
+  const lastSixWeeks = getLastFiveWeeks();
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  lastSixWeeks.push(date);
+  return getExpenses(lastSixWeeks);
+}
+
+/**
+ * Retrieves expenses for past year from API.
+ *
+ * @returns {Promise<Array>} - An array of expenses summaries for each month in the past year.
+ */
+function getYearExpenses() {
+  const lastThirteenMonths = getLastTwelveMonths();
+  const nextMonth = new Date();
+  nextMonth.setFullYear(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 1);
+  lastThirteenMonths.push(nextMonth);
+  return getExpenses(lastThirteenMonths);
+}
+
+/**
  * Retrieves expenses for each period from timePeriod[i] to timePeriod[i + 1].
  *
  * @param {Date[]} timePeriod - An array of time periods to retrieve summaries for.
@@ -113,5 +153,7 @@ async function getExpenses(timePeriod) {
 export {
   data,
   options,
-  getExpenses
+  getWeekExpenses,
+  getMonthExpenses,
+  getYearExpenses,
 };
