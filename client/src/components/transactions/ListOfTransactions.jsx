@@ -1,70 +1,11 @@
-import { Button, Card, Col, Form, Row, Skeleton, Table, Tag, Typography } from 'antd';
-import { green, red } from '@ant-design/colors';
+import { Button, Card, Col, Form, Row, Skeleton, Table, Typography } from 'antd';
 import React, { Component } from 'react';
 
+import { columns } from '../../utils/transactions/transactions';
 import AddTransaction from './AddTransaction';
 import EditableCell from './EditableCell';
-import { TransactionsContext } from './Provider';
+import { TransactionsContext } from './TransactionsProvider';
 import './ListOfTransactions.css';
-
-const schema = [
-  'Amount',
-  'Description',
-  'Method',
-  'Tags',
-  'Date'
-];
-
-const columns = (() => {
-  let columns = [];
-  for (let i = 0; i < schema.length; i++) {
-    const item = {
-      title: schema[i],
-      dataIndex: schema[i].toLowerCase(),
-      key: schema[i].toLowerCase(),
-      editable: true,
-    };
-    columns.push(item);
-  }
-
-  // format amount
-  let amountIndex = schema.indexOf('Amount');
-  columns[amountIndex].render = amount => {
-    if (amount < 0) {
-      return (
-        <div style={{color: red[4]}}>
-          - ${(-amount).toFixed(2)}
-        </div>
-      );
-    } else {
-      return (
-        <div style={{color: green[3]}}>
-          + ${(+amount).toFixed(2)}
-        </div>
-      );
-    }
-  };
-
-  // format tags
-  const tagsIndex = schema.indexOf('Tags');
-  columns[tagsIndex].render = tags => (
-    <span>
-      {(tags)
-        ? tags.map(tag => {
-          return (
-            <Tag key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          );
-        })
-        : []}
-    </span>
-  );
-
-  return columns;
-})();
-
-const EditableContext = React.createContext();
 
 class ListOfTransactions extends Component {
   state = {
@@ -73,19 +14,10 @@ class ListOfTransactions extends Component {
     showFooter: false,
   };
 
-  componentDidMount() {
-    const { subject } = this.props;
-    subject.addObserver(this);
-  }
-
-  update() {
-    // stub
-  }
-
   // handler for deleting transaction(s)
   delete = e => {
     e.preventDefault();
-    this.props.subject.handleDelete([...this.state.selected]);
+    this.props.handleDelete([...this.state.selected]);
     this.setState(currState => {
       currState.selected.length = 0;
       currState.editingKey = '';
@@ -105,10 +37,8 @@ class ListOfTransactions extends Component {
   // saves form data by updating API
   save = (form, key) => {
     form.validateFields((error, row) => {
-      if (error) {
-        console.log(error);
-        return;
-      }
+      if (error)
+        return console.log(error);
 
       const transaction = {
         transaction: {
@@ -119,14 +49,13 @@ class ListOfTransactions extends Component {
           'tags': row.tags || [],
         }
       };
-      this.props.subject.handleUpdate(transaction, key);
+      this.props.handleUpdate(transaction, key);
       this.setState({ editingKey: '' })
     });
   };
 
   render() {
-    const { subject, span } = this.props;
-    const transactions = subject.state.transactions;
+    const { span, transactions } = this.props;
 
     const cols = columns.map(col => {
       if (!col.editable) return col;
@@ -155,9 +84,7 @@ class ListOfTransactions extends Component {
         </Col>
         <Col span={12} align="right">
           <TransactionsContext.Consumer>
-            {context => (
-              <AddTransaction handleAdd={context.handleAdd} subject={context.subject} />
-            )}
+            {context => <AddTransaction handleAdd={context.handleAdd} />}
           </TransactionsContext.Consumer>
         </Col>
       </Row>
@@ -179,9 +106,7 @@ class ListOfTransactions extends Component {
     const cancelButton = <Button onClick={this.cancel}>Cancel</Button>;
     const saveButton = (
       <EditableContext.Consumer>
-        {form => (
-          <Button onClick={() => this.save(form, this.state.editingKey)}>Save</Button>
-        )}
+        {form => <Button onClick={() => this.save(form, this.state.editingKey)}>Save</Button>}
       </EditableContext.Consumer>
     );
 
@@ -204,7 +129,7 @@ class ListOfTransactions extends Component {
     return (
       <Col {...span}>
         <Card className="transactions" title={header} bordered={false}>
-          {(transactions.length === 0)
+          {this.props.isLoading
             ? <Skeleton active paragraph={{ rows: 6 }} />
             : <Row>
                 <EditableContext.Provider value={this.props.form}>
@@ -227,7 +152,6 @@ class ListOfTransactions extends Component {
   }
 }
 
-ListOfTransactions = Form.create()(ListOfTransactions);
+export const EditableContext = React.createContext({});
 
-export { EditableContext };
-export default ListOfTransactions;
+export default ListOfTransactions = Form.create()(ListOfTransactions);

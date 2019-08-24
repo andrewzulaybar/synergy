@@ -1,16 +1,25 @@
-import { Col, Row, Skeleton } from 'antd';
-import axios from 'axios';
-import Chart from 'chart.js';
+import { Button, Card, Col, Row, Skeleton, Typography } from 'antd';
 import React, { Component } from 'react';
+import { Line } from 'react-chartjs-2';
 
-import BaseChart from './Chart';
-import { TransactionsContext } from '../transactions/Provider';
-import { lineChart, tooltip } from '../../utils/color';
-import { getDayLabels, getWeekLabels, getMonthLabels, formatDate } from '../../utils/date';
+import {
+  getDayLabels,
+  getWeekLabels,
+  getMonthLabels,
+  getLastSevenDays,
+  getLastFiveWeeks,
+  getLastTwelveMonths
+} from '../../utils/misc/date';
+import { data, options, getExpenses } from '../../utils/charts/expenses';
 import './Expenses.css';
 
 class Expenses extends Component {
+  __isMounted = true;
+
+  chartRef = {};
+
   state = {
+    chartType: 'week',
     weekExpenses: [],
     monthExpenses: [],
     yearExpenses: [],
@@ -19,157 +28,148 @@ class Expenses extends Component {
     yearLabels: getMonthLabels(),
   };
 
-  // retrieves (meta)data for chart, then creates and renders chart
-  displayChart = name => {
-    let xLabels = [], data = [];
-    if (name === 'week') {
-      xLabels = this.state.weekLabels;
-      data = this.state.weekExpenses;
-    } else if (name === 'month') {
-      xLabels = this.state.monthLabels;
-      data = this.state.monthExpenses;
-    } else if (name === 'year') {
-      xLabels = this.state.yearLabels;
-      data = this.state.yearExpenses;
-    }
+  componentDidMount() {
+    this.retrieveExpenses()
+      .then(() => this.props.finishedLoading())
+      .catch(error => console.log(error));
+    this.props.onUpdate(this.onUpdate);
+  }
 
-    return new Chart(
-      document.getElementById('lineChart').getContext('2d'),
-      {
-        type: 'line',
-        data: {
-          labels: xLabels,
-          datasets: [
-            {
-              backgroundColor: lineChart.fillColor,
-              borderColor: lineChart.strokeColor,
-              data: data,
-              pointBackgroundColor: lineChart.strokeColor,
-            }
-          ]
-        },
-        options: {
-          hover: {
-            animationDuration: 500
-          },
-          layout: {
-            padding: {
-              bottom: 0,
-              left: 0,
-              right: 0,
-              top: 50,
-            }
-          },
-          legend: {
-            display: false
-          },
-          scales: {
-            xAxes: [{
-              gridLines: {
-                display: false,
-                drawBorder: false,
-              }
-            }],
-            yAxes: [{
-              beginAtZero: true,
-              gridLines: {
-                drawBorder: false,
-                borderDash: [8, 4],
-                color: "#e5e5e5",
-                zeroLineWidth: 0,
-              },
-              ticks: {
-                maxTicksLimit: 5,
-                padding: 10,
-              }
-            }]
-          },
-          tooltips: {
-            backgroundColor: tooltip.backgroundColor,
-            bodyAlign: 'center',
-            bodyFontColor: tooltip.textColor,
-            callbacks: {
-              label: (tooltip, object) => {
-                const yLabel = object.datasets[tooltip.datasetIndex].data[tooltip.index];
-                return '$ ' + yLabel;
-              }
-            },
-            displayColors: false,
-            intersect: false,
-            titleAlign: 'center',
-            titleFontColor: tooltip.textColor,
-            xAlign: 'center',
-            yAlign: 'bottom',
-          }
-        },
-      }
-    );
+  componentWillUnmount() {
+    this.__isMounted = false;
+  }
+
+  // retrieves expenses on update
+  onUpdate = () => {
+    this.retrieveExpenses()
+      .catch(error => console.log(error));
   };
 
-  // retrieves expenses for each period from timePeriod[i] to timePeriod[i + 1]
-  async getExpenses(timePeriod) {
-    let data = [], i;
-    for (i = 0; i < timePeriod.length - 1; i++) {
-      await axios.get('api/transactions/summary', {
-        params: {
-          type: 'expenses',
-          start: formatDate(timePeriod[i]),
-          end: formatDate(timePeriod[i + 1])
-        }
+  // retrieve weekly, monthly, and yearly expenses
+  async retrieveExpenses() {
+    const week = this.getWeekExpenses();
+    const month = this.getMonthExpenses();
+    const year = this.getYearExpenses();
+
+    await week;
+    await month;
+    await year;
+  };
+
+  // retrieves expenses for past week from API
+  getWeekExpenses() {
+    const lastEightDays = getLastSevenDays();
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    lastEightDays.push(tomorrow);
+    return getExpenses(lastEightDays)
+      .then(data => this.updateWeekExpenses(data))
+      .catch(error => console.log(error));
+  }
+
+  // updates state with week expenses
+  updateWeekExpenses(data) {
+    if (this.__isMounted) {
+      this.setState(currentState => {
+        currentState.weekExpenses = data;
+        return currentState;
+      });
+    }
+  };
+
+  // retrieves expenses for past month from API
+  getMonthExpenses() {
+    const lastSixWeeks = getLastFiveWeeks();
+    const date = new Date();
+    date.setDate(date.getDate() + 1);
+    lastSixWeeks.push(date);
+    return getExpenses(lastSixWeeks)
+      .then(data => this.updateMonthExpenses(data))
+      .catch(error => console.log(error));
+  }
+
+  // updates state with month expenses
+  updateMonthExpenses(data) {
+    if (this.__isMounted) {
+      this.setState(currentState => {
+        currentState.monthExpenses = data;
+        return currentState;
       })
-        .then(res => data.push(Math.abs(res.data.summary.sum).toFixed(2)))
-        .catch(error => console.log(error));
     }
-    return data;
   };
 
-  // callback function called after weekly expenses have been retrieved
-  weekCallback = data => {
-    this.setState(currentState => {
-      currentState.weekExpenses = data;
-      return currentState;
-    });
+  // retrieves expenses for past year from API
+  getYearExpenses() {
+    const lastThirteenMonths = getLastTwelveMonths();
+    const nextMonth = new Date();
+    nextMonth.setFullYear(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 1);
+    lastThirteenMonths.push(nextMonth);
+    return getExpenses(lastThirteenMonths)
+      .then(data => this.updateYearExpenses(data))
+      .catch(error => console.log(error));
+  }
+
+  // updates state with yearly expenses
+  updateYearExpenses(data) {
+    if (this.__isMounted) {
+      this.setState(currentState => {
+        currentState.yearExpenses = data;
+        return currentState;
+      })
+    }
   };
 
-  // callback function called after monthly expenses have been retrieved
-  monthCallback = data => {
-    this.setState(currentState => {
-      currentState.monthExpenses = data;
-      return currentState;
-    })
+  // retrieves chart data according to given type
+  getData(type) {
+    if (type === 'week')
+      return data(this.state.weekLabels, this.state.weekExpenses);
+    else if (type === 'month')
+      return data(this.state.monthLabels, this.state.monthExpenses);
+    else if (type === 'year')
+      return data(this.state.yearLabels, this.state.yearExpenses);
   };
 
-  // callback function called after yearly expenses have been retrieved
-  yearCallback = data => {
-    this.setState(currentState => {
-      currentState.yearExpenses = data;
-      return currentState;
-    })
+  // updates which chart is displayed
+  handleClick = e => {
+    e.preventDefault();
+    const type = e.target.name;
+    if (this.__isMounted)
+      this.setState({ chartType: type });
   };
 
   render() {
+    const data = this.getData(this.state.chartType);
+
+    const header = (
+      <Row>
+        <Col span={8} align="left">
+          <Typography.Title level={2} className="chartHeader">
+            Expenses
+          </Typography.Title>
+        </Col>
+        <Col span={16} align="right" className="buttonGroup">
+          <Button.Group size="small">
+            <Button onClick={this.handleClick} name="week">Week</Button>
+            <Button onClick={this.handleClick} name="month">Month</Button>
+            <Button onClick={this.handleClick} name="year">Year</Button>
+          </Button.Group>
+        </Col>
+      </Row>
+    );
+
     return (
       <Col {...this.props.span}>
-        <TransactionsContext.Consumer>
-          {context =>
-            <BaseChart
-              name="lineChart"
-              title="Expenses"
-              subject={context.subject}
-              displayChart={this.displayChart}
-              getExpenses={this.getExpenses}
-              weekCallback={this.weekCallback}
-              monthCallback={this.monthCallback}
-              yearCallback={this.yearCallback}
-            >
-              {(this.state.weekExpenses.length === 0 || this.state.weekLabels.length === 0)
-                ? <Skeleton active paragraph={{rows: 6}}/>
-                : <Row>
-                    <canvas id="lineChart"/>
-                  </Row>}
-            </BaseChart>
+        <Card className="lineChart" title={header} bordered={false}>
+          {this.props.isLoading
+            ? <Skeleton active paragraph={{ rows: 6 }}/>
+            : <Line
+                data={data}
+                options={options}
+                redraw
+                ref={ref => this.chartRef = ref}
+              />
           }
-        </TransactionsContext.Consumer>
+        </Card>
       </Col>
     )
   }

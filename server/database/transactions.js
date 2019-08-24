@@ -122,7 +122,7 @@ async function getSummary(type, tag, start, end) {
     if (start)
       date = {$gte: start};
     if (end)
-      date = {...date, $lte: end};
+      date = {...date, $lt: end};
     match['$match']['date'] = date;
   }
 

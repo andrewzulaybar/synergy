@@ -24,8 +24,9 @@ class Summary extends Component {
     return (
       <Col className="summary" {...{ xs: 24, sm: 8 }}>
         <Card size="small" bordered={false}>
-          {!this.props.loading
-            ? <>
+          {this.props.isLoading
+            ? <Skeleton active paragraph={{ rows: 1 }} />
+            : <>
                 <Row>
                   <Col span={24}>
                     <h4 className="title">{title}</h4>
@@ -39,7 +40,6 @@ class Summary extends Component {
                   </Row>
                 }
               </>
-            : <Skeleton active paragraph={{ rows: 1 }} />
           }
         </Card>
       </Col>

@@ -3,36 +3,116 @@ import React, { Component } from 'react';
 
 import Breakdown from '../../components/charts/Breakdown';
 import Expenses from '../../components/charts/Expenses';
-import Group from '../../components/summary/Group';
 import ListOfTransactions from '../../components/transactions/ListOfTransactions';
-import Provider, { TransactionsContext } from '../../components/transactions/Provider';
+import Summary from '../../components/summary/Summary';
+import TransactionsProvider, { TransactionsContext } from '../../components/transactions/TransactionsProvider';
 import '../root/Root.css';
 
 class Home extends Component {
+  __isMounted = true;
+
+  updateHandlers = [];
+
+  state = {
+    loading: 6,
+    isLoading: true,
+  };
+
+  componentWillUnmount() {
+    this.__isMounted = false;
+  }
+
+  // decreases loading count by 1 then checks if all loading is complete
+  finishedLoading = () => {
+    if (this.__isMounted)
+      this.setState(
+        currState => currState.loading -= 1,
+        () => {
+          this.isDoneLoading()
+        }
+      );
+  };
+
+  // checks if all loading is complete
+  isDoneLoading() {
+    if (this.state.loading === 0 && this.__isMounted)
+      this.setState({ isLoading: false });
+  };
+
+  // stores reference to update handler
+  onUpdate = update => {
+    this.updateHandlers.push(update);
+  };
+
+  // calls onUpdate functions
+  update = () => {
+    for (let i = 0; i < this.updateHandlers.length; i++) {
+      this.updateHandlers[i]();
+    }
+  };
+
   render() {
     const gutter = 16;
+    const { isLoading } = this.state;
 
     return (
       <Layout id="home">
         <Layout.Content className="App">
-          <Provider>
+          <TransactionsProvider
+            finishedLoading={this.finishedLoading}
+            update={this.update}
+            onUpdate={this.onUpdate}
+          >
             <TransactionsContext.Consumer>
               {context => (
                 <>
                   <Row type="flex" justify="center" gutter={gutter}>
-                    <Group subject={context.subject} />
+                    <Summary
+                      percent={context.weeklyExpensesPercentChange}
+                      title="Weekly Expenses"
+                      amount={context.weeklyExpenses}
+                      isLoading={isLoading}
+                    />
+                    <Summary
+                      percent={context.monthlyExpensesPercentChange}
+                      title="Monthly Expenses"
+                      amount={context.monthlyExpenses}
+                      isLoading={isLoading}
+                    />
+                    <Summary
+                      percent={context.monthlyIncomePercentChange}
+                      title="Monthly Income"
+                      amount={context.monthlyIncome}
+                      isLoading={isLoading}
+                    />
                   </Row>
                   <Row type="flex" justify="center" gutter={gutter}>
-                    <Expenses span={{ xs: 24, lg: 12 }} />
-                    <Breakdown span={{ xs: 24, lg: 12 }} />
+                    <Expenses
+                      span={{ xs: 24, lg: 12 }}
+                      finishedLoading={this.finishedLoading}
+                      isLoading={isLoading}
+                      onUpdate={this.onUpdate}
+                    />
+                    <Breakdown
+                      span={{ xs: 24, lg: 12 }}
+                      finishedLoading={this.finishedLoading}
+                      isLoading={isLoading}
+                      onUpdate={this.onUpdate}
+                    />
                   </Row>
                   <Row type="flex" justify="space-around">
-                    <ListOfTransactions span={{ xs: 24 }} subject={context.subject} />
+                    <ListOfTransactions
+                      span={{ xs: 24 }}
+                      handleDelete={context.handleDelete}
+                      handleUpdate={context.handleUpdate}
+                      transactions={context.transactions}
+                      isLoading={isLoading}
+                    />
                   </Row>
                 </>
               )}
             </TransactionsContext.Consumer>
-          </Provider>
+          </TransactionsProvider>
         </Layout.Content>
       </Layout>
     );

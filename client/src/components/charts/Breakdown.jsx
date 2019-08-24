@@ -1,34 +1,18 @@
-import { Col, Row, Skeleton } from 'antd';
-import axios from 'axios';
-import Chart from 'chart.js';
+import { Button, Card, Col, Row, Skeleton, Typography } from 'antd';
 import React, { Component } from 'react';
+import { Doughnut } from 'react-chartjs-2';
 
-import BaseChart from './Chart';
-import { TransactionsContext } from '../transactions/Provider';
-import { doughnutChart, tooltip } from '../../utils/color';
-import { formatDate } from '../../utils/date';
+import { data, options, retrieveData } from '../../utils/charts/breakdown';
 import './Breakdown.css';
 
-// returns index of maximum value in array
-function findIndexOfMax(array) {
-  return array.reduce(
-    (indexOfMax, element, index, array) =>
-      element > array[indexOfMax]
-        ? index
-        : indexOfMax, 0
-  );
-}
-
-// formats tag by capitalizing the first letter of each word
-function formatTag(tag) {
-  return tag.toLowerCase()
-    .split(' ')
-    .map((tag) => tag.charAt(0).toUpperCase() + tag.substring(1))
-    .join(' ');
-}
-
 class Breakdown extends Component {
+  __isMounted = true;
+
+  chartRef = {};
+  numOfTags = 5;
+
   state = {
+    chartType: 'week',
     weekBreakdown: [],
     monthBreakdown: [],
     yearBreakdown: [],
@@ -37,202 +21,155 @@ class Breakdown extends Component {
     yearLabels: [],
   };
 
-  tags = [];
-  numOfTags = 5;
-
-  // retrieves expenses between start date and end date for each tag
-  retrieveData = async timePeriod => {
-    let data = [];
-    const start = timePeriod[0];
-    const end = timePeriod[timePeriod.length - 1];
-    await axios.get('/api/transactions/tags')
-      .then(res => this.tags = res.data.tags)
+  componentDidMount() {
+    this.retrieveBreakdown()
+      .then(() => this.props.finishedLoading())
       .catch(error => console.log(error));
+    this.props.onUpdate(this.onUpdate);
+  }
 
-    await this.getExpenses(start, end, this.tags)
-      .then(expensesByTag => data = expensesByTag)
+  componentWillUnmount() {
+    this.__isMounted = false;
+  }
+
+  // retrieves breakdown on update
+  onUpdate = () => {
+    this.retrieveBreakdown()
       .catch(error => console.log(error));
-
-    const sortedExpenses = this.getExpensesForTopTags([...data]);
-    const sortedTags = (data.length > 1)
-      ? this.getLabelsForTopTags([...data])
-      : [];
-
-    return [sortedExpenses, sortedTags];
   };
 
-  // retrieves expenses between start date and end date for each tag in tags
-  async getExpenses(start, end, tags) {
-    let data = [], i;
-    for (i = 0; i < tags.length; i++) {
-      await axios.get('api/transactions/summary', {
-        params: {
-          type: 'expenses',
-          start: formatDate(start),
-          end: formatDate(end),
-          tag: tags[i],
-        }
+  // retrieve weekly, monthly, and yearly expenses
+  async retrieveBreakdown() {
+    const week = this.getWeekBreakdown();
+    const month = this.getMonthBreakdown();
+    const year = this.getYearBreakdown();
+
+    await week;
+    await month;
+    await year;
+  }
+
+  // retrieves expenses for past week from API
+  getWeekBreakdown() {
+    const sixDaysAgo = new Date();
+    sixDaysAgo.setDate(sixDaysAgo.getDate() - 6);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    return retrieveData(sixDaysAgo, tomorrow, this.numOfTags)
+      .then(data => this.updateWeekBreakdown(data))
+      .catch(error => console.log(error));
+  }
+
+  // updates state with week expenses
+  updateWeekBreakdown(data) {
+    if (this.__isMounted) {
+      this.setState(currentState => {
+        currentState.weekBreakdown = data[0];
+        currentState.weekLabels = data[1];
+        return currentState;
+      });
+    }
+  };
+
+  // retrieves expenses for past month from API
+  getMonthBreakdown() {
+    const fiveWeeksAgo = new Date();
+    fiveWeeksAgo.setDate(fiveWeeksAgo.getDate() - 5 * 7);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    return retrieveData(fiveWeeksAgo, tomorrow, this.numOfTags)
+      .then(data => this.updateMonthBreakdown(data))
+      .catch(error => console.log(error));
+  }
+
+  // updates state with month expenses
+  updateMonthBreakdown(data) {
+    if (this.__isMounted) {
+      this.setState(currentState => {
+        currentState.monthBreakdown = data[0];
+        currentState.monthLabels = data[1];
+        return currentState;
       })
-        .then(res => data.push(Math.abs(res.data.summary.sum)))
-        .catch(error => console.log(error));
     }
-    return data;
-  }
-
-  // retrieves labels for top (numOfTags - 1) tags, aggregating the rest into 'other'
-  getLabelsForTopTags(array) {
-    const tags = [...this.tags];
-    let i = 0, indexOfMax, sortedTags = [];
-    while (i < this.numOfTags - 1) {
-      indexOfMax = findIndexOfMax(array);
-      sortedTags.push(formatTag(tags[indexOfMax]));
-      array.splice(indexOfMax, 1);
-      tags.splice(indexOfMax, 1);
-      i++;
-    }
-    sortedTags.push('Other');
-    return sortedTags;
-  }
-
-  // retrieves expenses for the top (numOfTags - 1) tags, aggregating the rest into 'other'
-  getExpensesForTopTags(array) {
-    const sortedExpenses = [];
-    let i = 0, indexOfMax;
-    while (i < this.numOfTags - 1) {
-      indexOfMax = findIndexOfMax(array);
-      sortedExpenses.push(array[indexOfMax]);
-      array.splice(indexOfMax, 1);
-      i++;
-    }
-    let other = 0;
-    array.forEach((val) => other += val);
-    sortedExpenses.push(other);
-    return sortedExpenses;
-  }
-
-  // retrieves (meta)data for chart, then creates and renders chart
-  displayChart = name => {
-    let labels = [], data = [];
-    if (name === 'week') {
-      labels = this.state.weekLabels;
-      data = this.state.weekBreakdown;
-    } else if (name === 'month') {
-      labels = this.state.monthLabels;
-      data = this.state.monthBreakdown;
-    } else if (name === 'year') {
-      labels = this.state.yearLabels;
-      data = this.state.yearBreakdown;
-    }
-
-    return new Chart(
-      document.getElementById('doughnutChart').getContext('2d'),
-      {
-        type: 'doughnut',
-        data: {
-          datasets: [{
-            backgroundColor: doughnutChart.colors,
-            borderWidth: 0,
-            data: data,
-            hoverBackgroundColor: doughnutChart.colors,
-          }],
-          labels: labels,
-        },
-        options: {
-          cutoutPercentage: 70,
-          layout: {
-            padding: {
-              bottom: 20,
-              left: 0,
-              right: 0,
-              top: 40,
-            }
-          },
-          legend: {
-            labels: {
-              boxWidth: 7,
-              usePointStyle: true,
-            },
-            onClick: null,
-            position: 'right'
-          },
-          tooltips: {
-            backgroundColor: tooltip.backgroundColor,
-            bodyAlign: 'center',
-            bodyFontColor: tooltip.textColor,
-            callbacks: {
-              label: (tooltip, object) => {
-                const data = object.datasets[tooltip.datasetIndex].data;
-                const total = data.reduce((acc, dataPoint) => {
-                  return acc + dataPoint
-                });
-                const category = data[tooltip.index];
-                return (category / total * 100).toFixed(1) + '%';
-              },
-              title: (tooltipArray, object) => {
-                return object.labels[tooltipArray[0].index] + ':';
-              },
-            },
-            displayColors: false,
-            titleAlign: 'center',
-            titleFontColor: tooltip.textColor,
-            xAlign: 'center',
-            yAlign: 'bottom',
-          }
-        }
-      }
-    );
   };
 
-  // callback function called after weekly breakdown have been retrieved
-  weekCallback = data => {
-    this.setState(currentState => {
-      currentState.weekBreakdown = data[0];
-      currentState.weekLabels = data[1];
-      return currentState;
-    });
+  // retrieves expenses for past year from API
+  getYearBreakdown() {
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setDate(1);
+    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 11);
+    const nextMonth = new Date();
+    nextMonth.setFullYear(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 1);
+
+    return retrieveData(twelveMonthsAgo, nextMonth, this.numOfTags)
+      .then(data => this.updateYearBreakdown(data))
+      .catch(error => console.log(error));
+  }
+
+  // updates state with year expenses
+  updateYearBreakdown(data) {
+    if (this.__isMounted) {
+      this.setState(currentState => {
+        currentState.yearBreakdown = data[0];
+        currentState.yearLabels = data[1];
+        return currentState;
+      })
+    }
   };
 
-  // callback function called after monthly breakdown have been retrieved
-  monthCallback = data => {
-    this.setState(currentState => {
-      currentState.monthBreakdown = data[0];
-      currentState.monthLabels = data[1];
-      return currentState;
-    })
+  // retrieves chart data according to given type
+  getData(type) {
+    if (type === 'week')
+      return data(this.state.weekLabels, this.state.weekBreakdown);
+    else if (type === 'month')
+      return data(this.state.monthLabels, this.state.monthBreakdown);
+    else if (type === 'year')
+      return data(this.state.yearLabels, this.state.yearBreakdown);
   };
 
-  // callback function called after yearly breakdown have been retrieved
-  yearCallback = data => {
-    this.setState(currentState => {
-      currentState.yearBreakdown = data[0];
-      currentState.yearLabels = data[1];
-      return currentState;
-    })
+  // updates which chart is displayed
+  handleClick = e => {
+    e.preventDefault();
+    const type = e.target.name;
+    if (this.__isMounted)
+      this.setState({ chartType: type });
   };
 
   render() {
+    const data = this.getData(this.state.chartType);
+
+    const header = (
+      <Row>
+        <Col span={8} align="left">
+          <Typography.Title level={2} className="chartHeader">
+            Breakdown
+          </Typography.Title>
+        </Col>
+        <Col span={16} align="right" className="buttonGroup">
+          <Button.Group size="small">
+            <Button onClick={this.handleClick} name="week">Week</Button>
+            <Button onClick={this.handleClick} name="month">Month</Button>
+            <Button onClick={this.handleClick} name="year">Year</Button>
+          </Button.Group>
+        </Col>
+      </Row>
+    );
+
     return (
       <Col {...this.props.span}>
-        <TransactionsContext.Consumer>
-          {context =>
-            <BaseChart
-              name="doughnutChart"
-              title="Breakdown"
-              subject={context.subject}
-              displayChart={this.displayChart}
-              getExpenses={this.retrieveData}
-              weekCallback={this.weekCallback}
-              monthCallback={this.monthCallback}
-              yearCallback={this.yearCallback}
-            >
-              {(this.state.weekBreakdown.length === 0 || this.state.weekLabels.length === 0)
-                ? <Skeleton active paragraph={{ rows: 6 }} />
-                : <Row>
-                    <canvas id="doughnutChart" />
-                  </Row>}
-            </BaseChart>
+        <Card className="doughnutChart" title={header} bordered={false}>
+          {this.props.isLoading
+            ? <Skeleton active paragraph={{ rows: 6 }} />
+            : <Doughnut
+                data={data}
+                options={options}
+                redraw
+                ref={ref => this.chartRef = ref}
+              />
           }
-        </TransactionsContext.Consumer>
+        </Card>
       </Col>
     );
   }
