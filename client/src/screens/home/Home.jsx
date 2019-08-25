@@ -68,21 +68,21 @@ class Home extends Component {
                 <>
                   <Row type="flex" justify="center" gutter={gutter}>
                     <Summary
-                      percent={context.weeklyExpensesPercentChange}
+                      percent={context.weekExpensesPercent}
                       title="Weekly Expenses"
-                      amount={context.weeklyExpenses}
+                      amount={context.weekExpenses}
                       isLoading={isLoading}
                     />
                     <Summary
-                      percent={context.monthlyExpensesPercentChange}
+                      percent={context.monthExpensesPercent}
                       title="Monthly Expenses"
-                      amount={context.monthlyExpenses}
+                      amount={context.monthExpenses}
                       isLoading={isLoading}
                     />
                     <Summary
-                      percent={context.monthlyIncomePercentChange}
+                      percent={context.monthIncomePercent}
                       title="Monthly Income"
-                      amount={context.monthlyIncome}
+                      amount={context.monthIncome}
                       isLoading={isLoading}
                     />
                   </Row>

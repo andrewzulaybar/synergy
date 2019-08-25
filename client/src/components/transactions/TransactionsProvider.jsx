@@ -1,31 +1,42 @@
-import axios from 'axios';
 import React, { Component } from 'react';
 
-import { createDate, formatDate } from '../../utils/misc/date';
+import { updateWeeklyExpenses, updateMonthlyExpenses, updateMonthlyIncome } from '../../utils/summary/summary';
+import {
+  getTransactions,
+  createNewTransaction,
+  deleteTransactions,
+  updateTransaction
+} from '../../utils/transactions/transactions';
 
 class TransactionsProvider extends Component {
   __isMounted = true;
 
   state = {
     transactions: [],
-    weeklyExpenses: 0,
-    weeklyExpensesPercentChange: 0,
-    monthlyExpenses: 0,
-    monthlyExpensesPercentChange: 0,
-    monthlyIncome: 0,
-    monthlyIncomePercentChange: 0,
+    weekExpenses: 0,
+    weekExpensesPercent: 0,
+    monthExpenses: 0,
+    monthExpensesPercent: 0,
+    monthIncome: 0,
+    monthIncomePercent: 0,
   };
 
   componentDidMount() {
-    this.getTransactions();
-    this.props.finishedLoading();
+    const { finishedLoading } = this.props;
 
-    this.updateWeeklyExpenses();
-    this.props.finishedLoading();
-    this.updateMonthlyExpenses();
-    this.props.finishedLoading();
-    this.updateMonthlyIncome();
-    this.props.finishedLoading();
+    getTransactions()
+      .then(list => this.updateStateTransactions(list, finishedLoading))
+      .catch(error => console.log(error));
+
+    updateWeeklyExpenses()
+      .then(summary => this.updateStateSummary(summary, 'weekExpenses', finishedLoading))
+      .catch(error => console.log(error));
+    updateMonthlyExpenses()
+      .then(summary => this.updateStateSummary(summary, 'monthExpenses', finishedLoading))
+      .catch(error => console.log(error));
+    updateMonthlyIncome()
+      .then(summary => this.updateStateSummary(summary, 'monthIncome', finishedLoading))
+      .catch(error => console.log(error));
 
     this.props.onUpdate(this.onUpdate);
   };
@@ -36,185 +47,80 @@ class TransactionsProvider extends Component {
 
   // refreshes summary cards on update
   onUpdate = () => {
-    this.updateWeeklyExpenses();
-    this.updateMonthlyExpenses();
-    this.updateMonthlyIncome();
+    const { onUpdate } = this.props;
+    updateWeeklyExpenses()
+      .then(summary => this.updateStateSummary(summary, 'weekExpenses'))
+      .catch(error => console.log(error));
+    updateMonthlyExpenses()
+      .then(summary => this.updateStateSummary(summary, 'monthExpenses'))
+      .catch(error => console.log(error));
+    updateMonthlyIncome()
+      .then(summary => this.updateStateSummary(summary, 'monthIncome'))
+      .catch(error => console.log(error));
   };
 
   // handler for adding new transaction
   handleAdd = transaction => {
-    const newData = {
-      amount: transaction.amount,
-      description: transaction.description,
-      method: transaction.method,
-      tags: transaction.tags,
-      date: transaction.date
-    };
-    this.createNewTransaction(newData);
+    createNewTransaction(transaction, this.state.transactions)
+      .then(list => this.updateStateTransactions(list, this.props.update))
+      .catch(error => console.log(error));
   };
 
   // handler for updating transaction
   handleUpdate = (transaction, id) => {
-    let transactions = this.state.transactions;
-    const index = transactions.findIndex(item => id === item._id);
-    transactions.splice(index, 1);
-
-    axios.put('api/transactions/' + id, transaction)
-      .then(res => {
-        res.data.transaction.date = res.data.transaction.date.split('T')[0];
-        const newTransactions = this.insertNewTransaction({...res.data.transaction}, true);
-        if (this.__isMounted) {
-          this.setState(
-            {transactions: newTransactions},
-            () => this.props.update()
-          );
-        }
-      })
+    updateTransaction(transaction, id, this.state.transactions)
+      .then(list => this.updateStateTransactions(list, this.props.update))
       .catch(error => console.log(error));
   };
 
   // handler for deleting transactions
   handleDelete = transactionIDs => {
-    const data = { data: { transactionIDs: transactionIDs }};
-    axios.delete('/api/transactions', data)
-      .then(res =>
-        this.removeDeletedTransactions(res.data.transactionIDs)
-      )
+    deleteTransactions(transactionIDs, this.state.transactions)
+      .then(list => this.updateStateTransactions(list, this.props.update))
       .catch(error => console.log(error));
   };
 
-  // retrieves list of transactions
-  getTransactions() {
-    axios.get('/api/transactions')
-      .then(res => {
-        if (this.__isMounted)
-          this.setState({ transactions: res.data.transactions });
-      })
-      .catch(error => console.log(error))
-  };
-
-  // helper for creating new transaction on server
-  createNewTransaction(transaction) {
-    axios.post('/api/transactions', transaction)
-      .then(res => {
-        if (this.__isMounted) {
-          this.setState(
-            { transactions: this.insertNewTransaction(res.data.transaction) },
-            () => this.props.update()
-          )
-        }
-      })
-      .catch(error => console.log(error));
-  };
-
-  // helper for inserting new transaction into current list of transactions
-  insertNewTransaction(transaction) {
-    const list = this.state.transactions;
-    let i = 0;
-    while (i < list.length && list[i].date > transaction.date) i++;
-    list.splice(i, 0, transaction);
-    return list;
-  }
-
-  // helper for removing given transactions from current state given IDs
-  removeDeletedTransactions(deletedTransactionIDs) {
-    const remainingTransactions = this.state.transactions
-      .filter(element => !deletedTransactionIDs.includes(element._id));
+  // helper for updating state transactions
+  updateStateTransactions(list, callback) {
     if (this.__isMounted) {
       this.setState(
-        { transactions: remainingTransactions },
-        () => this.props.update()
+        currState => {
+          currState.transactions = list;
+          return currState;
+        },
+        () => callback()
       );
     }
-  };
+  }
 
-  // helper for updating state
-  updateState = (currentPeriodTotal, previousPeriodTotal, type) => {
-    let typePercentChange = type + 'PercentChange';
+  // helper for updating state summary
+  updateStateSummary(summary, type, callback = () => {}) {
+    const current = summary.current;
+    const previous = summary.previous;
+    const typePercent = type + 'Percent';
     if (this.__isMounted) {
-      this.setState({
-        [type]: currentPeriodTotal.toFixed(2),
-        [typePercentChange]:
-          Math.round((previousPeriodTotal !== 0)
-            ? (currentPeriodTotal - previousPeriodTotal) / previousPeriodTotal * 100
-            : currentPeriodTotal
-          )
-        });
+      this.setState(
+        currState => {
+          currState[type] = current.toFixed(2);
+          currState[typePercent] =
+            Math.round((previous !== 0) ? (current - previous) / previous * 100 : current);
+          return currState;
+        },
+        () => callback()
+      );
     }
-  };
-
-  // updates weekly expenses and percent change
-  updateWeeklyExpenses() {
-    let end = createDate(-1);
-    let thisWeekStart = createDate(6);
-    let lastWeekStart = createDate(13);
-
-    this.retrievePeriodSummary(lastWeekStart, thisWeekStart, end, 'weeklyExpenses');
-  }
-
-  // updates monthly expenses and percent change
-  updateMonthlyExpenses() {
-    let tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    let end = formatDate(tomorrow);
-    let thisMonthStart = formatDate(new Date(tomorrow.getFullYear(), tomorrow.getMonth(), 1));
-    let lastMonthStart = formatDate(new Date(tomorrow.getFullYear(), tomorrow.getMonth() - 1, 1));
-
-    this.retrievePeriodSummary(lastMonthStart, thisMonthStart, end, 'monthlyExpenses');
-  }
-
-  // updates monthly income and percent change
-  updateMonthlyIncome() {
-    let tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    let end = formatDate(tomorrow);
-    let thisMonthStart = formatDate(new Date(tomorrow.getFullYear(), tomorrow.getMonth(), 1));
-    let lastMonthStart = formatDate(new Date(tomorrow.getFullYear(), tomorrow.getMonth() - 1, 1));
-
-    this.retrievePeriodSummary(lastMonthStart, thisMonthStart, end, 'monthlyIncome');
-  }
-
-  // helper for retrieving summary for current period and previous period
-  retrievePeriodSummary(lastPeriodStart, thisPeriodStart, thisPeriodEnd, type) {
-    let summaryType = type.toLowerCase().includes('income') ? 'income' : 'expenses';
-    this.getPeriodSummary(thisPeriodStart, thisPeriodEnd, summaryType)
-      .then(thisPeriodTotal =>
-        this.getPeriodSummary(lastPeriodStart, thisPeriodStart, summaryType)
-          .then(lastPeriodTotal =>
-            this.updateState(thisPeriodTotal, lastPeriodTotal, type)
-          )
-          .catch(error => console.log(error))
-      )
-      .catch(error => console.log(error))
-  }
-
-  // retrieves period summary according to type (expenses or income)
-  async getPeriodSummary(start, end, type) {
-    let total = 0;
-    await axios.get('api/transactions/summary', {
-      params: {
-        type: type,
-        start: start,
-        end: end,
-      }
-    })
-      .then(res => total = Math.abs(res.data.summary.sum))
-      .catch(error => console.log(error));
-    return total;
   }
 
   render() {
     return (
       <TransactionsContext.Provider value={{
         transactions: this.state.transactions,
-        weeklyExpenses: this.state.weeklyExpenses,
-        weeklyExpensesPercentChange: this.state.weeklyExpensesPercentChange,
-        monthlyExpenses: this.state.monthlyExpenses,
-        monthlyExpensesPercentChange: this.state.monthlyExpensesPercentChange,
-        monthlyIncome: this.state.monthlyIncome,
-        monthlyIncomePercentChange: this.state.monthlyIncomePercentChange,
+        weekExpenses: this.state.weekExpenses,
+        weekExpensesPercent: this.state.weekExpensesPercent,
+        monthExpenses: this.state.monthExpenses,
+        monthExpensesPercent: this.state.monthExpensesPercent,
+        monthIncome: this.state.monthIncome,
+        monthIncomePercent: this.state.monthIncomePercent,
         handleAdd: this.handleAdd,
         handleUpdate: this.handleUpdate,
         handleDelete: this.handleDelete,
