@@ -1,8 +1,8 @@
+require('dotenv').config();
 const MongoClient = require( 'mongodb' ).MongoClient;
-const { CONNECTION_STRING } = require('../database/secrets'); // private file
 
 let _db;
-const uri = CONNECTION_STRING;
+const uri = process.env.CONNECTION_STRING;
 
 /**
  * Connects to database.
