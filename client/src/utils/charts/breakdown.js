@@ -138,6 +138,13 @@ async function retrieveData(start, end) {
   const sortedExpenses = getExpensesForTopTags([...data]);
   const sortedTags = getLabelsForTopTags([...data], tags);
 
+  let i = 0;
+  while (i < sortedExpenses.length) {
+    if (sortedExpenses[i] === 0) break;
+    i++;
+  }
+  sortedTags.splice(i);
+
   return { expenses: sortedExpenses, labels: sortedTags }
 }
 
