@@ -33,8 +33,9 @@ const columns = (() => {
     columns.push(item);
   }
 
-  // format amount
+  // format amount column
   let amountIndex = schema.indexOf('Amount');
+  columns[amountIndex].width = '15%';
   columns[amountIndex].render = amount => {
     if (amount < 0) {
       return (
@@ -51,8 +52,17 @@ const columns = (() => {
     }
   };
 
-  // format tags
+  // format description column
+  const descriptionIndex = schema.indexOf('Description');
+  columns[descriptionIndex].width = '20%';
+
+  // format methods column
+  const methodIndex = schema.indexOf('Method');
+  columns[methodIndex].width = '15%';
+
+  // format tags column
   const tagsIndex = schema.indexOf('Tags');
+  columns[tagsIndex].width = '30%';
   columns[tagsIndex].render = tags => (
     <span>
       {(tags)
@@ -66,6 +76,10 @@ const columns = (() => {
         : []}
     </span>
   );
+
+  // format date column
+  const dateIndex = schema.indexOf('Date');
+  columns[dateIndex].width = '15%';
 
   return columns;
 })();
