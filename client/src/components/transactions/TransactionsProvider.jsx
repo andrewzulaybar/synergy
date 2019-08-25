@@ -47,7 +47,6 @@ class TransactionsProvider extends Component {
 
   // refreshes summary cards on update
   onUpdate = () => {
-    const { onUpdate } = this.props;
     updateWeeklyExpenses()
       .then(summary => this.updateStateSummary(summary, 'weekExpenses'))
       .catch(error => console.log(error));

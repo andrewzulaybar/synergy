@@ -7,3 +7,8 @@
 .ant-calendar-picker {
     width: 100%;
 }
+
+/* labels for input boxes */
+.ant-form-item-label > label {
+    color: rgba(51, 51, 51, 0.75);
+}

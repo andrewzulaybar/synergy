@@ -1,4 +1,4 @@
-import { Button, Col, DatePicker, Form, Input, Modal, Select, Typography } from 'antd';
+import { Button, Col, DatePicker, Form, Input, Modal, Select } from 'antd';
 import React, { Component } from 'react';
 
 import {
@@ -115,11 +115,7 @@ class AddTransaction extends Component {
       </Form.Item>
     );
 
-    const header = (
-      <Typography.Title level={2}>
-        Add Transaction
-      </Typography.Title>
-    );
+    const header = <h2 className="ant-typography">Add Transaction</h2>;
 
     return (
       <>

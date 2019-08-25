@@ -20,7 +20,18 @@
     width: 100%;
 }
 
+/* transactions table head */
+.ant-table-thead > tr > th {
+    color: rgba(51, 51, 51, 0.75);
+    font-weight: 600;
+}
+
 /* hover on transactions table row */
 .ant-table-tbody > tr.ant-table-row.ant-table-row-level-0:hover > td {
     background-color: rgba(104, 145, 229, 0.1);
+}
+
+/* ant icon size */
+.anticon {
+    font-size: 12px;
 }
