@@ -60,6 +60,7 @@ const options = {
         zeroLineWidth: 0,
       },
       ticks: {
+        min: 0,
         maxTicksLimit: 5,
         padding: 10,
       }

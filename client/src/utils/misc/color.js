@@ -25,8 +25,8 @@ const doughnutChart = {
 /**
  * Tooltip colors.
  */
-const backgroundColor = '#e7e7e7';
-const textColor = 'rgba(51, 51, 51, 0.75)';
+const backgroundColor = 'rgba(0, 0, 0, 0.7)';
+const textColor = 'rgba(255, 255, 255, 1)';
 const tooltip = {
   backgroundColor,
   textColor,
