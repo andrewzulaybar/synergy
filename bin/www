@@ -6,7 +6,20 @@
 
 const app = require('../app');
 const debug = require('debug')('server:server');
+const express = require('express');
 const http = require('http');
+const path = require('path');
+
+/**
+ * Serve static assets if in production.
+ */
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('client/build'));
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve('client', 'build', 'index.html'));
+  });
+}
+
 
 /**
  * Get port from environment and store in Express.

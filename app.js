@@ -10,7 +10,7 @@ database.connectToServer((err) => {
   if (err)
       console.log(err);
 
-  const indexRouter = require('./routes/index');
+  const indexRouter = require('./routes');
   const transactionsRouter = require('./routes/transactions');
   const accountsRouter = require('./routes/accounts');
 

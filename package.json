@@ -3,9 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "client": "cd .. && cd client && npm start",
-    "client-server-install": "npm install && cd .. && cd client && npm install",
+    "client": "npm start --prefix client",
+    "client-server-install": "npm install && npm install --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client",
     "server": "nodemon ./bin/www",
     "start": "node ./bin/www"
   },
