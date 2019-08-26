@@ -3,9 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "client": "cd .. && cd client && npm start",
+    "client-server-install": "npm install && cd .. && cd client && npm install",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "nodemon ./bin/www",
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "concurrently": "^4.1.2",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "dotenv": "^8.1.0",
@@ -14,5 +19,8 @@
     "mongodb": "^3.2.7",
     "morgan": "~1.9.1",
     "plaid": "^4.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
   }
 }
