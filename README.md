@@ -36,7 +36,7 @@ git clone https://github.com/andrewzulaybar/expense-tracker.git
 
 2. Run ```cd client``` to change directories into the 'client' folder.
 
-3. Create a .env file at top level, then add the following constant to the file:
+3. Create a .env file, then add the following constant to the file:
 
 ```js
 // 'public-key' can be found on your Plaid Dashboard
@@ -45,9 +45,7 @@ REACT_APP_PLAID_PUBLIC_KEY='public-key'
 
 4. In order to make changes to the server locally, go to the 'package.json' file and replace the line ```"proxy": "https://synergy-expenses.herokuapp.com/"``` with ```"proxy": "http://localhost:8000"```.
 
-
-
-5. Run ```cd server``` to change directories into the 'server' folder.
+5. Run ```cd ..``` to change directories out of the 'client' folder.
 
 6. Create a .env file at top level, then add the following constants to the file:
 
