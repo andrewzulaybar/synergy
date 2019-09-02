@@ -1,157 +1,184 @@
 import { Button, Card, Col, Form, Row, Skeleton, Table, Typography } from 'antd';
-import React, { Component } from 'react';
+import React, { useContext } from 'react';
 
-import { columns } from '../../utils/transactions/transactions';
 import AddTransaction from './AddTransaction';
 import EditableCell from './EditableCell';
-import { TransactionsContext } from './TransactionsProvider';
+import { EditingContext } from '../stores/EditingProvider';
+import { TransactionsContext } from '../stores/TransactionsProvider';
+import {
+  UPDATE_TRANSACTIONS,
+  EDIT_SELECTED,
+  UPDATE_SELECTED,
+  CANCEL_EDITING,
+  HIDE_FOOTER,
+  SHOW_FOOTER,
+  ERROR,
+} from '../../utils/misc/action-types';
+import { columns, deleteTransactions, updateTransaction } from '../../utils/transactions/transactions';
 import './ListOfTransactions.css';
 
-class ListOfTransactions extends Component {
-  state = {
-    editingKey: '',
-    selected: [],
-    showFooter: false,
-  };
+const ListOfTransactions = Form.create()(props => {
+  const {
+    state: transactionsState,
+    dispatch: transactionsDispatch
+  } = useContext(TransactionsContext);
+  const {
+    state: editingState,
+    dispatch: editingDispatch
+  } = useContext(EditingContext);
 
   // handler for deleting transaction(s)
-  delete = e => {
+  function handleDelete(e) {
     e.preventDefault();
-    this.props.handleDelete([...this.state.selected]);
-    this.setState(currState => {
-      currState.selected.length = 0;
-      currState.editingKey = '';
-      currState.showFooter = false;
-    });
-  };
+    deleteTransactions([...editingState.selected], transactionsState.transactions)
+      .then(list => {
+        transactionsDispatch({ type: UPDATE_TRANSACTIONS, transactions: list });
+        editingDispatch({ type: UPDATE_TRANSACTIONS })
+      })
+      .catch(error => {
+        transactionsDispatch({ type: ERROR, error: error })
+      });
+  }
 
   // true if id is the same as the row currently being edited, false otherwise
-  isEditing = id => id === this.state.editingKey;
-
-  // sets editing key to off state
-  cancel = () => this.setState({ editingKey: '' });
+  function isEditing(id) {
+    return id === editingState.editingKey;
+  }
 
   // updates editing key with the key of the row currently being edited
-  edit = key => this.setState({ editingKey: key });
+  function handleEdit(key) {
+    editingDispatch({ type: EDIT_SELECTED, key: key });
+  }
 
-  // saves form data by updating API
-  save = (form, key) => {
+  // sets editing key to off transactionsState
+  function handleCancel() {
+    editingDispatch({ type: CANCEL_EDITING });
+  }
+
+  // handler for updating transaction
+  function save(form, key){
     form.validateFields((error, row) => {
       if (error)
         return console.log(error);
-
-      const transaction = {
-        transaction: {
-          'amount': row.amount,
-          'description': row.description,
-          'method': row.method,
-          'date': row.date,
-          'tags': row.tags || [],
-        }
-      };
-      this.props.handleUpdate(transaction, key);
-      this.setState({ editingKey: '' })
+      processTransaction(row, key)
     });
+  }
+
+  // helper for processing transaction
+  function processTransaction(row, key) {
+    const transaction = {
+      transaction: {
+        'amount': row.amount,
+        'description': row.description,
+        'method': row.method,
+        'date': row.date,
+        'tags': row.tags || [],
+      }
+    };
+    updateTransaction(transaction, key, transactionsState.transactions)
+      .then(list => {
+        transactionsDispatch({type: UPDATE_TRANSACTIONS, transactions: list});
+        editingDispatch({type: CANCEL_EDITING});
+      })
+      .catch(error =>
+        transactionsDispatch({type: ERROR, error: error})
+      );
+  }
+
+  const cols = columns.map(col => {
+    if (!col.editable) return col;
+    return {
+      ...col,
+      onCell: record => ({
+        record,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        editing: isEditing(record._id),
+      }),
+    };
+  });
+
+  const components = {
+    body: { cell: EditableCell }
   };
 
-  render() {
-    const { span, transactions } = this.props;
+  const deleteButton = <Button onClick={handleDelete}>Delete</Button>;
+  const editButton = <Button onClick={() => handleEdit(editingState.selected[0])}>Edit</Button>;
+  const cancelButton = <Button onClick={handleCancel}>Cancel</Button>;
+  const saveButton = (
+    <EditableContext.Consumer>
+      {form => <Button onClick={() => save(form, editingState.editingKey)}>Save</Button>}
+    </EditableContext.Consumer>
+  );
 
-    const cols = columns.map(col => {
-      if (!col.editable) return col;
-
-      return {
-        ...col,
-        onCell: record => ({
-          record,
-          dataIndex: col.dataIndex,
-          title: col.title,
-          editing: this.isEditing(record._id),
-        }),
-      };
-    });
-
-    const components = {
-      body: { cell: EditableCell }
-    };
-
-    const header = (
-      <Row>
-        <Col span={12} align="left">
-          <Typography.Title level={2}>
-            Transactions
-          </Typography.Title>
-        </Col>
-        <Col span={12} align="right">
-          <TransactionsContext.Consumer>
-            {context => <AddTransaction handleAdd={context.handleAdd} />}
-          </TransactionsContext.Consumer>
-        </Col>
-      </Row>
-    );
-
-    const rowSelection = {
-      onChange: (selected) => {
-        this.setState({ selected: selected }, () => {
-          if (selected.length === 0)
-            this.setState({ showFooter: false, editingKey: '' });
-          else
-            this.setState({ showFooter: true });
-        });
-      },
-    };
-
-    const deleteButton = <Button onClick={this.delete}>Delete</Button>;
-    const editButton = <Button onClick={() => this.edit(this.state.selected[0])}>Edit</Button>;
-    const cancelButton = <Button onClick={this.cancel}>Cancel</Button>;
-    const saveButton = (
-      <EditableContext.Consumer>
-        {form => <Button onClick={() => this.save(form, this.state.editingKey)}>Save</Button>}
-      </EditableContext.Consumer>
-    );
-
-    let footer;
-    if (this.state.showFooter) {
-      if (this.state.selected.length === 1) {
-        // if currently editing some entry...
-        if (this.state.editingKey !== '')
-          footer = () => <Button.Group>{cancelButton}{saveButton}</Button.Group>;
-        // else, only 1 entry is selected and not editing
-        else
-          footer = () => <Button.Group>{editButton}{deleteButton}</Button.Group>
-      }
-      // else more than 1 entry is selected
-      else footer = () => deleteButton;
+  let footer;
+  if (editingState.showFooter) {
+    if (editingState.selected.length === 1) {
+      // if currently editing some entry...
+      if (editingState.editingKey !== '')
+        footer = () => <Button.Group>{cancelButton}{saveButton}</Button.Group>;
+      // else, only 1 entry is selected and not editing
+      else
+        footer = () => <Button.Group>{editButton}{deleteButton}</Button.Group>
     }
-    // else no entries are selected
-    else footer = undefined;
-
-    return (
-      <Col {...span}>
-        <Card className="transactions" title={header} bordered={false}>
-          {this.props.isLoading
-            ? <Skeleton active paragraph={{ rows: 6 }} />
-            : <Row>
-                <EditableContext.Provider value={this.props.form}>
-                  <Table
-                    className="transactions"
-                    columns={cols}
-                    components={components}
-                    dataSource={transactions}
-                    pagination={{ position: 'bottom' }}
-                    rowKey={(record) => { return record._id }}
-                    rowSelection={rowSelection}
-                    size="middle"
-                    footer={footer}
-                  />
-                </EditableContext.Provider>
-              </Row>}
-        </Card>
-      </Col>
-    );
+    // else more than 1 entry is selected
+    else footer = () => deleteButton;
   }
-}
+  // else no entries are selected
+  else footer = undefined;
+
+  const header = (
+    <Row>
+      <Col span={12} align="left">
+        <Typography.Title level={2}>
+          Transactions
+        </Typography.Title>
+      </Col>
+      <Col span={12} align="right">
+        <AddTransaction />
+      </Col>
+    </Row>
+  );
+
+  const rowSelection = {
+    onChange: (selected) => {
+      try {
+        editingDispatch({ type: UPDATE_SELECTED, selected: selected });
+        if (selected.length === 0)
+          editingDispatch({ type: HIDE_FOOTER });
+        else
+          editingDispatch({ type: SHOW_FOOTER })
+      } catch (error) {
+        editingDispatch({ type: ERROR, error: error });
+      }
+    },
+  };
+
+  return (
+    <Col {...props.span}>
+      <Card className="transactions" title={header} bordered={false}>
+        {transactionsState.loading
+          ? <Skeleton active paragraph={{ rows: 6 }} />
+          : <Row>
+              <EditableContext.Provider value={props.form}>
+                <Table
+                  className="transactions"
+                  columns={cols}
+                  components={components}
+                  dataSource={transactionsState.transactions}
+                  pagination={{ position: 'bottom' }}
+                  rowKey={record => { return record._id }}
+                  rowSelection={rowSelection}
+                  size="middle"
+                  footer={footer}
+                />
+              </EditableContext.Provider>
+            </Row>}
+      </Card>
+    </Col>
+  );
+});
 
 export const EditableContext = React.createContext({});
 
-export default ListOfTransactions = Form.create()(ListOfTransactions);
+export default ListOfTransactions;

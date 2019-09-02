@@ -1,0 +1,28 @@
+// update transactions
+const UPDATE_TRANSACTIONS = 'UPDATE_TRANSACTIONS';
+
+// edit transactions
+const EDIT_SELECTED = 'EDIT_SELECTED';
+const UPDATE_SELECTED = 'UPDATE_SELECTED';
+const CANCEL_EDITING = 'CANCEL_EDITING';
+
+// displaying footer
+const SHOW_FOOTER = 'SHOW_FOOTER';
+const HIDE_FOOTER = 'HIDE_FOOTER';
+
+// loading
+const LOADING = 'LOADING';
+
+// error
+const ERROR = 'ERROR';
+
+export {
+  UPDATE_TRANSACTIONS,
+  EDIT_SELECTED,
+  UPDATE_SELECTED,
+  CANCEL_EDITING,
+  SHOW_FOOTER,
+  HIDE_FOOTER,
+  LOADING,
+  ERROR
+}

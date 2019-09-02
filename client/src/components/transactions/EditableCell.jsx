@@ -1,19 +1,19 @@
 import { Form } from 'antd';
-import React, { Component } from 'react';
+import React from 'react';
 
 import { getInput, getFormRules } from '../../utils/transactions/editable-cell';
 import { EditableContext } from './ListOfTransactions';
 
-class EditableCell extends Component {
+const EditableCell = props => {
   // handles cell rendering according to type
-  renderCell = ({ getFieldDecorator }) => {
+  const renderCell = ({ getFieldDecorator }) => {
     const {
       editing,
       dataIndex,
       record,
       children,
       ...restProps
-    } = this.props;
+    } = props;
 
     return (
       <td {...restProps}>
@@ -31,13 +31,11 @@ class EditableCell extends Component {
     );
   };
 
-  render() {
-    return (
-      <EditableContext.Consumer>
-        {this.renderCell}
-      </EditableContext.Consumer>
-    );
-  }
-}
+  return (
+    <EditableContext.Consumer>
+      {renderCell}
+    </EditableContext.Consumer>
+  );
+};
 
 export default EditableCell;

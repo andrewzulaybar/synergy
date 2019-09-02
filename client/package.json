@@ -40,5 +40,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "https://synergy-expenses.herokuapp.com/"
+  "proxy": "http://localhost:8000/"
 }
