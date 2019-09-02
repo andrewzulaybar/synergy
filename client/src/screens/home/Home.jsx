@@ -1,8 +1,8 @@
 import { Layout, Row } from 'antd';
 import React, { useEffect, useState } from 'react';
 
-// import Breakdown from '../../components/charts/Breakdown';
-// import Expenses from '../../components/charts/Expenses';
+import Breakdown from '../../components/charts/Breakdown';
+import Expenses from '../../components/charts/Expenses';
 import SummaryGroup from '../../components/summary/SummaryGroup';
 import ListOfTransactions from '../../components/transactions/ListOfTransactions';
 import { EditingProvider } from '../../components/stores/EditingProvider';
@@ -50,20 +50,18 @@ const Home = () => {
               <SummaryGroup isLoading={isLoading} />
             </SummaryProvider>
           </Row>
-          {/*<Row type="flex" justify="center" gutter={gutter}>*/}
-            {/*<Expenses*/}
-              {/*span={{ xs: 24, lg: 12 }}*/}
-              {/*finishedLoading={this.finishedLoading}*/}
-              {/*isLoading={isLoading}*/}
-              {/*onUpdate={this.onUpdate}*/}
-            {/*/>*/}
-            {/*<Breakdown*/}
-              {/*span={{ xs: 24, lg: 12 }}*/}
-              {/*finishedLoading={this.finishedLoading}*/}
-              {/*isLoading={isLoading}*/}
-              {/*onUpdate={this.onUpdate}*/}
-            {/*/>*/}
-          {/*</Row>*/}
+          <Row type="flex" justify="center" gutter={gutter}>
+            <Expenses
+              span={{ xs: 24, lg: 12 }}
+              finishedLoading={finishedLoading}
+              isLoading={isLoading}
+            />
+            <Breakdown
+              span={{ xs: 24, lg: 12 }}
+              finishedLoading={finishedLoading}
+              isLoading={isLoading}
+            />
+          </Row>
           <Row type="flex" justify="space-around">
             <EditingProvider>
               <ListOfTransactions span={{ xs: 24 }} isLoading={isLoading}/>
