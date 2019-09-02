@@ -1,6 +1,7 @@
-import React, { useEffect, useReducer } from 'react';
+import React, {useContext, useEffect, useReducer} from 'react';
 
-import { UPDATE_TRANSACTIONS, ERROR, LOADING } from '../../utils/misc/action-types';
+import { HomeContext } from './HomeProvider';
+import { UPDATE_TRANSACTIONS, ERROR, LOADING, FINISHED_LOADING } from '../../utils/misc/action-types';
 import { getTransactions } from '../../utils/transactions/transactions';
 
 const transactionsInitialState = {
@@ -28,7 +29,7 @@ const transactionsReducer = (state, action) => {
 
 const TransactionsProvider = props => {
   const [state, dispatch] = useReducer(transactionsReducer, transactionsInitialState);
-  const { finishedLoading } = props;
+  const { dispatch: homeDispatch } = useContext(HomeContext);
 
   // retrieves transactions if component did mount
   useEffect(() => {
@@ -41,7 +42,7 @@ const TransactionsProvider = props => {
         dispatch({type: ERROR});
       }
     }
-    fetchTransactions().then(finishedLoading());
+    fetchTransactions().then(() => homeDispatch({ type: FINISHED_LOADING }));
   }, []);
 
   return (

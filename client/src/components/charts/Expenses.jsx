@@ -1,43 +1,52 @@
 import { Button, Card, Col, Row, Skeleton, Typography } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { Line } from 'react-chartjs-2';
 
+import { HomeContext } from '../stores/HomeProvider';
+import { FINISHED_LOADING } from '../../utils/misc/action-types';
 import { getDayLabels, getWeekLabels, getMonthLabels } from '../../utils/misc/date';
 import { data, options, getWeekExpenses, getMonthExpenses, getYearExpenses } from '../../utils/charts/expenses';
 import './Expenses.css';
 
-const Expenses = props => {
+const Expenses = ({ span }) => {
   const [chartType, setChartType] = useState('week');
-  const [weekExpenses, setWeekExpenses] = useState([]);
-  const [monthExpenses, setMonthExpenses] = useState([]);
-  const [yearExpenses, setYearExpenses] = useState([]);
-  const weekLabels = getDayLabels();
-  const monthLabels = getWeekLabels();
-  const yearLabels =  getMonthLabels();
+  const [state, setState] =
+    useState({
+      weekExpenses: [],
+      weekLabels: getDayLabels(),
+      monthExpenses: [],
+      monthLabels: getWeekLabels(),
+      yearExpenses: [],
+      yearLabels: getMonthLabels(),
+    });
 
-  const { finishedLoading } = props;
+  const { state: homeState, dispatch: homeDispatch } = useContext(HomeContext);
 
+  // retrieves expenses if component did mount
   useEffect(() => {
-    retrieveExpenses().then(() => finishedLoading())
+    retrieveExpenses().then(() => homeDispatch({ type: FINISHED_LOADING }))
   }, []);
 
   // retrieve weekly, monthly, and yearly expenses
   async function retrieveExpenses() {
     const promises = [getWeekExpenses(), getMonthExpenses(), getYearExpenses()];
     const [week, month, year] = await Promise.all(promises);
-    setWeekExpenses(week);
-    setMonthExpenses(month);
-    setYearExpenses(year);
+    setState({
+      ...state,
+      weekExpenses: week,
+      monthExpenses: month,
+      yearExpenses: year,
+    })
   }
 
   // retrieves chart data according to given type
   function getData(type) {
     if (type === 'week')
-      return data(weekLabels, weekExpenses);
+      return data(state.weekLabels, state.weekExpenses);
     else if (type === 'month')
-      return data(monthLabels, monthExpenses);
+      return data(state.monthLabels, state.monthExpenses);
     else if (type === 'year')
-      return data(yearLabels, yearExpenses);
+      return data(state.yearLabels, state.yearExpenses);
   }
 
   // updates which chart is displayed
@@ -67,9 +76,9 @@ const Expenses = props => {
   );
 
   return (
-    <Col {...props.span}>
+    <Col {...span}>
       <Card className="lineChart" title={header} bordered={false}>
-        {props.isLoading
+        {homeState.isLoading
           ? <Skeleton active paragraph={{ rows: 6 }}/>
           : <Line data={chartData} options={options} redraw />
         }

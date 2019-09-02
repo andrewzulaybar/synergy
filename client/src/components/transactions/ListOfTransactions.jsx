@@ -4,6 +4,7 @@ import React, { useContext } from 'react';
 import AddTransaction from './AddTransaction';
 import EditableCell from './EditableCell';
 import { EditingContext } from '../stores/EditingProvider';
+import { HomeContext } from '../stores/HomeProvider';
 import { TransactionsContext } from '../stores/TransactionsProvider';
 import {
   UPDATE_TRANSACTIONS,
@@ -17,7 +18,7 @@ import {
 import { columns, deleteTransactions, updateTransaction } from '../../utils/transactions/transactions';
 import './ListOfTransactions.css';
 
-const ListOfTransactions = Form.create()(props => {
+const ListOfTransactions = Form.create()(({ span, form }) => {
   const {
     state: transactionsState,
     dispatch: transactionsDispatch
@@ -26,6 +27,9 @@ const ListOfTransactions = Form.create()(props => {
     state: editingState,
     dispatch: editingDispatch
   } = useContext(EditingContext);
+  const {
+    state: homeState
+  } = useContext(HomeContext);
 
   // handler for deleting transaction(s)
   function handleDelete(e) {
@@ -155,12 +159,12 @@ const ListOfTransactions = Form.create()(props => {
   };
 
   return (
-    <Col {...props.span}>
+    <Col {...span}>
       <Card className="transactions" title={header} bordered={false}>
-        {props.isLoading
+        {homeState.isLoading
           ? <Skeleton active paragraph={{ rows: 6 }} />
           : <Row>
-              <EditableContext.Provider value={props.form}>
+              <EditableContext.Provider value={form}>
                 <Table
                   className="transactions"
                   columns={cols}

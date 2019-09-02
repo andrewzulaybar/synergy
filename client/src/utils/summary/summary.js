@@ -86,8 +86,32 @@ async function getPeriodSummary(start, end, type) {
   return total;
 }
 
+/**
+ * Rounds amount to two decimal places.
+ *
+ * @param {number} amount - The amount to round.
+ * @returns {string} - The amount rounded to two decimal places.
+ */
+function toTwoDecimalPlaces(amount) {
+  return amount.toFixed(2);
+}
+
+/**
+ * Calculates percent change between previous and current period.
+ *
+ * @param {Object} amount - The object containing the amounts for the previous and current period.
+ * @returns {number} - The percent change between the previous and current period.
+ */
+function percentChange(amount) {
+  const current = amount.current;
+  const previous = amount.previous;
+  return Math.round((previous !== 0) ? (current - previous) / previous * 100 : current);
+}
+
 export {
   updateWeeklyExpenses,
   updateMonthlyExpenses,
   updateMonthlyIncome,
+  toTwoDecimalPlaces,
+  percentChange
 }

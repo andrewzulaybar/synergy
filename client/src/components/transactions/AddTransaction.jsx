@@ -14,7 +14,7 @@ import {
 import { createNewTransaction } from '../../utils/transactions/transactions';
 import './AddTransaction.css';
 
-const AddTransaction = Form.create()(props => {
+const AddTransaction = Form.create()(({ form }) => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -33,7 +33,7 @@ const AddTransaction = Form.create()(props => {
   // handler for adding transaction and closing modal
   function handleOk() {
     setConfirmLoading(true);
-    props.form.validateFields(
+    form.validateFields(
       (err, values) => {
         if (!err) {
           processTransaction(values)
@@ -72,7 +72,7 @@ const AddTransaction = Form.create()(props => {
     });
   }
 
-  const { getFieldDecorator } = props.form;
+  const { getFieldDecorator } = form;
 
   const formItemLayout = {
     labelCol: { span: 24 },
