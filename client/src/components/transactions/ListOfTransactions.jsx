@@ -157,7 +157,7 @@ const ListOfTransactions = Form.create()(props => {
   return (
     <Col {...props.span}>
       <Card className="transactions" title={header} bordered={false}>
-        {transactionsState.loading
+        {props.isLoading
           ? <Skeleton active paragraph={{ rows: 6 }} />
           : <Row>
               <EditableContext.Provider value={props.form}>
