@@ -21,8 +21,8 @@ const Home = () => {
               <SummaryGroup />
             </Row>
             <Row type="flex" justify="center" gutter={gutter}>
-              <Expenses span={{ xs: 24, lg: 12 }} />
-              <Breakdown span={{ xs: 24, lg: 12 }} />
+              <Expenses/>
+              <Breakdown/>
             </Row>
             <Row type="flex" justify="space-around">
               <EditingProvider>
@@ -35,6 +35,5 @@ const Home = () => {
     </Layout>
   );
 };
-
 
 export default Home;

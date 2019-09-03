@@ -3,6 +3,17 @@ import axios from 'axios';
 import { createDate, formatDate } from '../misc/date';
 
 /**
+ * Calculates summary statistics.
+ *
+ * @returns {Promise<Object[]>} - The array containing the week expenses, month expenses, and month income objects.
+ */
+async function retrieveSummary() {
+  const promises = [updateWeeklyExpenses(), updateMonthlyExpenses(), updateMonthlyIncome()];
+  const [weekExpenses, monthExpenses, monthIncome] = await Promise.all(promises);
+  return [weekExpenses, monthExpenses, monthIncome];
+}
+
+/**
  * Retrieves expenses for the current week and the previous week.
  *
  * @returns {Promise<Object>} - Object containing the expenses for the current week and the previous week.
@@ -109,9 +120,7 @@ function percentChange(amount) {
 }
 
 export {
-  updateWeeklyExpenses,
-  updateMonthlyExpenses,
-  updateMonthlyIncome,
+  retrieveSummary,
   toTwoDecimalPlaces,
   percentChange
 }

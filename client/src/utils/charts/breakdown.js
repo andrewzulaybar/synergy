@@ -78,6 +78,17 @@ const options = {
 };
 
 /**
+ * Retrieves week, month, and year breakdowns and labels.
+ *
+ * @returns {Promise<Object[]>} - The array containing the week, month, and year breakdowns and labels.
+ */
+async function retrieveBreakdown() {
+  const promises = [getWeekBreakdown(), getMonthBreakdown(), getYearBreakdown()];
+  const [week, month, year] = await Promise.all(promises);
+  return [week, month, year];
+}
+
+/**
  * Retrieves expenses for past week from API.
  *
  * @returns {Promise<Object>} - An object with the list of tags and list of expenses (sorted in decreasing order).
@@ -251,7 +262,5 @@ function formatTag(tag) {
 export {
   data,
   options,
-  getWeekBreakdown,
-  getMonthBreakdown,
-  getYearBreakdown
+  retrieveBreakdown,
 };

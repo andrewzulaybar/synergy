@@ -10,14 +10,14 @@ const Summary = ({ amount, percent, title }) => {
 
   let icon, styles;
   if (percent > 0) {
-    icon = <Icon type="caret-up" />;
     styles = { color: green[3] };
+    icon = <Icon type="caret-up" style={styles} />;
   } else if (percent === 0) {
-    icon = <Icon type="swap" />;
     styles = { color: gold[3] };
+    icon = <Icon type="swap" style={styles} />;
   } else {
-    icon = <Icon type="caret-down" />;
     styles = { color: red[4] };
+    icon = <Icon type="caret-down" style={styles} />;
     percent = -percent;
   }
 
@@ -35,7 +35,7 @@ const Summary = ({ amount, percent, title }) => {
             </Row>
             {percent &&
               <Row className="percent-icon">
-                <Col span={2} style={styles}>{icon}</Col>
+                {icon}
                 <h4 className="percent" style={styles}>{percent} %</h4>
               </Row>
             }

@@ -29,7 +29,7 @@ const editingReducer = (state, action) => {
       return {
         ...state,
         editingKey: '',
-        selected: [],
+        selected: state.selected.length = 0,
         showFooter: false
       };
     case SHOW_FOOTER:
@@ -42,11 +42,7 @@ const editingReducer = (state, action) => {
         showFooter: false
       };
     case ERROR:
-      return {
-        ...state,
-        loading: false,
-        error: action.error
-      };
+      return {...state, error: action.error};
     default:
       return state;
   }

@@ -2,7 +2,7 @@ import { Button, Col, DatePicker, Form, Input, Modal, Select } from 'antd';
 import React, { useContext, useState } from 'react';
 
 import { TransactionsContext } from '../stores/TransactionsProvider';
-import { UPDATE_TRANSACTIONS, LOADING, ERROR } from '../../utils/misc/action-types';
+import { UPDATE_TRANSACTIONS, ERROR } from '../../utils/misc/action-types';
 import {
   amountRules,
   descriptionRules,
@@ -51,7 +51,6 @@ const AddTransaction = Form.create()(({ form }) => {
 
   // helper for processing transaction
   async function processTransaction(values) {
-    dispatch({ type: LOADING });
     const transaction = {
       'amount': values.amount,
       'description': values.description,

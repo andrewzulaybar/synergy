@@ -1,53 +1,57 @@
 import { Button, Card, Col, Row, Skeleton, Typography } from 'antd';
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 
 import { HomeContext } from '../stores/HomeProvider';
+import {TransactionsContext} from '../stores/TransactionsProvider';
 import { FINISHED_LOADING } from '../../utils/misc/action-types';
 import { getDayLabels, getWeekLabels, getMonthLabels } from '../../utils/misc/date';
-import { data, options, getWeekExpenses, getMonthExpenses, getYearExpenses } from '../../utils/charts/expenses';
+import { data, options, retrieveExpenses } from '../../utils/charts/expenses';
 import './Expenses.css';
 
-const Expenses = ({ span }) => {
+const Expenses = () => {
   const [chartType, setChartType] = useState('week');
   const [state, setState] =
     useState({
       weekExpenses: [],
-      weekLabels: getDayLabels(),
+      weekLabels: [],
       monthExpenses: [],
-      monthLabels: getWeekLabels(),
+      monthLabels: [],
       yearExpenses: [],
-      yearLabels: getMonthLabels(),
+      yearLabels: [],
     });
 
   const { state: homeState, dispatch: homeDispatch } = useContext(HomeContext);
+  const { state: transactionsState } = useContext(TransactionsContext);
 
   // retrieves expenses if component did mount
   useEffect(() => {
-    retrieveExpenses().then(() => homeDispatch({ type: FINISHED_LOADING }))
-  }, []);
+    retrieveExpenses().then(([week, month, year]) => {
+      setState({
+        weekLabels: getDayLabels(),
+        monthLabels: getWeekLabels(),
+        yearLabels: getMonthLabels(),
+        weekExpenses: week,
+        monthExpenses: month,
+        yearExpenses: year,
+      });
+      homeDispatch({ type: FINISHED_LOADING });
+    });
+  }, [homeDispatch]);
 
-  // retrieve weekly, monthly, and yearly expenses
-  async function retrieveExpenses() {
-    const promises = [getWeekExpenses(), getMonthExpenses(), getYearExpenses()];
-    const [week, month, year] = await Promise.all(promises);
-    setState({
-      ...state,
-      weekExpenses: week,
-      monthExpenses: month,
-      yearExpenses: year,
-    })
-  }
-
-  // retrieves chart data according to given type
-  function getData(type) {
-    if (type === 'week')
-      return data(state.weekLabels, state.weekExpenses);
-    else if (type === 'month')
-      return data(state.monthLabels, state.monthExpenses);
-    else if (type === 'year')
-      return data(state.yearLabels, state.yearExpenses);
-  }
+  // retrieves expenses if transactions have changed
+  useEffect(() => {
+    retrieveExpenses().then(([week, month, year]) => {
+      setState({
+        weekLabels: getDayLabels(),
+        monthLabels: getWeekLabels(),
+        yearLabels: getMonthLabels(),
+        weekExpenses: week,
+        monthExpenses: month,
+        yearExpenses: year,
+      });
+    });
+  }, [transactionsState]);
 
   // updates which chart is displayed
   function handleClick (e) {
@@ -56,35 +60,48 @@ const Expenses = ({ span }) => {
     setChartType(type);
   }
 
-  const chartData = getData(chartType);
+  return useMemo(() => {
+    const chartData = (() => {
+      switch (chartType) {
+        case 'week':
+          return data(state.weekLabels, state.weekExpenses);
+        case 'month':
+          return data(state.monthLabels, state.monthExpenses);
+        case 'year':
+          return data(state.yearLabels, state.yearExpenses);
+        default:
+          return [];
+      }
+    })();
 
-  const header = (
-    <Row>
-      <Col span={8} align="left">
-        <Typography.Title level={2} className="chartHeader">
-          Expenses
-        </Typography.Title>
-      </Col>
-      <Col span={16} align="right" className="buttonGroup">
-        <Button.Group size="small">
-          <Button onClick={handleClick} name="week">Week</Button>
-          <Button onClick={handleClick} name="month">Month</Button>
-          <Button onClick={handleClick} name="year">Year</Button>
-        </Button.Group>
-      </Col>
-    </Row>
-  );
+    const header = (
+      <Row>
+        <Col span={8} align="left">
+          <Typography.Title level={2} className="chartHeader">
+            Expenses
+          </Typography.Title>
+        </Col>
+        <Col span={16} align="right" className="buttonGroup">
+          <Button.Group size="small">
+            <Button onClick={handleClick} name="week">Week</Button>
+            <Button onClick={handleClick} name="month">Month</Button>
+            <Button onClick={handleClick} name="year">Year</Button>
+          </Button.Group>
+        </Col>
+      </Row>
+    );
 
-  return (
-    <Col {...span}>
-      <Card className="lineChart" title={header} bordered={false}>
-        {homeState.isLoading
-          ? <Skeleton active paragraph={{ rows: 6 }}/>
-          : <Line data={chartData} options={options} redraw />
-        }
-      </Card>
-    </Col>
-  )
+    return (
+      <Col {...{xs: 24, lg: 12}}>
+        <Card className="lineChart" title={header} bordered={false}>
+          {homeState.isLoading
+            ? <Skeleton active paragraph={{rows: 6}}/>
+            : <Line data={chartData} options={options} redraw/>
+          }
+        </Card>
+      </Col>
+    );
+  }, [state, chartType, homeState.isLoading])
 };
 
 export default Expenses;

@@ -86,6 +86,17 @@ const options = {
 };
 
 /**
+ * Retrieves week, month, and year expenses.
+ *
+ * @returns {Promise<Array>} - The array containing the week, month, and year expenses.
+ */
+async function retrieveExpenses() {
+  const promises = [getWeekExpenses(), getMonthExpenses(), getYearExpenses()];
+  const [week, month, year] = await Promise.all(promises);
+  return [week, month, year];
+}
+
+/**
  * Retrieves expenses for past week from API.
  *
  * @returns {Promise<Array>} - An array of expenses summaries for each day in the past week.
@@ -154,7 +165,5 @@ async function getExpenses(timePeriod) {
 export {
   data,
   options,
-  getWeekExpenses,
-  getMonthExpenses,
-  getYearExpenses,
+  retrieveExpenses,
 };

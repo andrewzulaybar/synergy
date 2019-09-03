@@ -2,13 +2,12 @@ import React, { useContext, useEffect, useState } from 'react';
 
 import Summary from './Summary';
 import { HomeContext } from '../stores/HomeProvider';
+import { TransactionsContext } from '../stores/TransactionsProvider';
 import { FINISHED_LOADING } from '../../utils/misc/action-types';
 import {
   percentChange,
   toTwoDecimalPlaces,
-  updateMonthlyExpenses,
-  updateMonthlyIncome,
-  updateWeeklyExpenses
+  retrieveSummary
 } from '../../utils/summary/summary';
 
 const SummaryGroup = ({ isLoading }) => {
@@ -21,14 +20,13 @@ const SummaryGroup = ({ isLoading }) => {
       monthIncome: 0,
       monthIncomePercent: 0,
     });
+
   const { dispatch: homeDispatch } = useContext(HomeContext);
+  const { state: transactionsState } = useContext(TransactionsContext);
 
   // retrieves summary if component did mount
   useEffect(() => {
-    // calculates summary statistics
-    async function fetchSummary() {
-      const promises = [updateWeeklyExpenses(), updateMonthlyExpenses(), updateMonthlyIncome()];
-      const [weekExpenses, monthExpenses, monthIncome] = await Promise.all(promises);
+    retrieveSummary().then(([weekExpenses, monthExpenses, monthIncome]) => {
       setSummaryState({
         weekExpenses: toTwoDecimalPlaces(weekExpenses.current),
         weekExpensesPercent: percentChange(weekExpenses),
@@ -37,10 +35,23 @@ const SummaryGroup = ({ isLoading }) => {
         monthIncome: toTwoDecimalPlaces(monthIncome.current),
         monthIncomePercent: percentChange(monthIncome),
       });
-    }
+      homeDispatch({ type: FINISHED_LOADING })
+    });
+  }, [homeDispatch]);
 
-    fetchSummary().then(() => homeDispatch({ type: FINISHED_LOADING }));
-  }, []);
+  // retrieves summary if transactions have changed
+  useEffect(() => {
+    retrieveSummary().then(([weekExpenses, monthExpenses, monthIncome]) => {
+      setSummaryState({
+        weekExpenses: toTwoDecimalPlaces(weekExpenses.current),
+        weekExpensesPercent: percentChange(weekExpenses),
+        monthExpenses: toTwoDecimalPlaces(monthExpenses.current),
+        monthExpensesPercent: percentChange(monthExpenses),
+        monthIncome: toTwoDecimalPlaces(monthIncome.current),
+        monthIncomePercent: percentChange(monthIncome),
+      });
+    });
+  }, [transactionsState]);
 
   return (
     <>
