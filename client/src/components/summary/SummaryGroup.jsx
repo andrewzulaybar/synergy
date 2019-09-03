@@ -10,7 +10,7 @@ import {
   retrieveSummary
 } from '../../utils/summary/summary';
 
-const SummaryGroup = ({ isLoading }) => {
+const SummaryGroup = () => {
   const [summaryState, setSummaryState] =
     useState({
       weekExpenses: 0,
@@ -21,7 +21,7 @@ const SummaryGroup = ({ isLoading }) => {
       monthIncomePercent: 0,
     });
 
-  const { dispatch: homeDispatch } = useContext(HomeContext);
+  const { state: homeState, dispatch: homeDispatch } = useContext(HomeContext);
   const { state: transactionsState } = useContext(TransactionsContext);
 
   // retrieves summary if component did mount
@@ -56,22 +56,22 @@ const SummaryGroup = ({ isLoading }) => {
   return (
     <>
       <Summary
-        percent={summaryState.weekExpensesPercent}
         title="Weekly Expenses"
         amount={summaryState.weekExpenses}
-        isLoading={isLoading}
+        percent={summaryState.weekExpensesPercent}
+        isLoading={homeState.isLoading}
       />
       <Summary
-        percent={summaryState.monthExpensesPercent}
         title="Monthly Expenses"
         amount={summaryState.monthExpenses}
-        isLoading={isLoading}
+        percent={summaryState.monthExpensesPercent}
+        isLoading={homeState.isLoading}
       />
       <Summary
-        percent={summaryState.monthIncomePercent}
         title="Monthly Income"
         amount={summaryState.monthIncome}
-        isLoading={isLoading}
+        percent={summaryState.monthIncomePercent}
+        isLoading={homeState.isLoading}
       />
     </>
   )

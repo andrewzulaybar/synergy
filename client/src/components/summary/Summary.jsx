@@ -1,30 +1,29 @@
 import { Card, Col, Icon, Row, Skeleton } from 'antd';
 import { gold, green, red } from '@ant-design/colors';
-import React, { useContext } from 'react';
+import React from 'react';
 
-import { HomeContext } from '../stores/HomeProvider';
 import './Summary.css';
 
-const Summary = ({ amount, percent, title }) => {
-  const { state: homeState } = useContext(HomeContext);
-
+const Summary = ({ amount, percent, title, isLoading }) => {
   let icon, styles;
-  if (percent > 0) {
-    styles = { color: green[3] };
-    icon = <Icon type="caret-up" style={styles} />;
-  } else if (percent === 0) {
-    styles = { color: gold[3] };
-    icon = <Icon type="swap" style={styles} />;
-  } else {
-    styles = { color: red[4] };
-    icon = <Icon type="caret-down" style={styles} />;
-    percent = -percent;
+  if (percent) {
+    if (percent > 0) {
+      styles = { color: green[3] };
+      icon = <Icon type="caret-up" style={styles} />;
+    } else if (percent === 0) {
+      styles = { color: gold[3] };
+      icon = <Icon type="swap" style={styles} />;
+    } else {
+      styles = { color: red[4] };
+      icon = <Icon type="caret-down" style={styles} />;
+      percent = -percent;
+    }
   }
 
   return (
     <Col className="summary" {...{ xs: 24, sm: 8 }}>
       <Card size="small" bordered={false}>
-        {homeState.isLoading
+        {isLoading
           ? <Skeleton active paragraph={{ rows: 1 }} />
           : <>
             <Row>
