@@ -1,57 +1,49 @@
 import { Layout, Row } from 'antd';
-import React, { Component } from 'react'
+import React from 'react'
 
-import AccountsProvider, { AccountsContext } from '../../components/accounts/AccountsProvider';
 import ListOfAccounts from '../../components/accounts/ListOfAccounts';
 import Summary from '../../components/summary/Summary';
+import { AccountsContext, AccountsProvider } from '../../components/stores/AccountsProvider';
 import '../root/Root.css';
 
-class Accounts extends Component {
-  state = { isLoading: true };
-
-  setIsLoading = isLoading => this.setState({ isLoading });
-
-  render() {
-    const { isLoading } = this.state;
-
-    return (
-      <Layout id="accounts">
-        <Layout.Content className="accounts">
-          <AccountsProvider setIsLoading={this.setIsLoading}>
-            <AccountsContext.Consumer>
-              {context => (
-                <>
-                  <Row gutter={16}>
+const Accounts = () => {
+  return (
+    <Layout id="accounts">
+      <Layout.Content className="accounts">
+        <AccountsProvider>
+          <AccountsContext.Consumer>
+            {({ state }) => (
+              <>
+                <Row gutter={16}>
                   <Summary
-                    amount={context.summary.wealth}
+                    amount={state.summary.wealth}
                     title="Total Wealth"
-                    isLoading={isLoading}
+                    isLoading={state.isLoading}
                   />
                   <Summary
-                    amount={context.summary.debt}
+                    amount={state.summary.debt}
                     title="Total Debt"
-                    isLoading={isLoading}
+                    isLoading={state.isLoading}
                   />
                   <Summary
-                    amount={context.summary.savings}
+                    amount={state.summary.savings}
                     title="Total Savings"
-                    isLoading={isLoading}
+                    isLoading={state.isLoading}
                   />
-                  </Row>
-                  <Row>
-                    <ListOfAccounts
-                      accounts={context.accounts}
-                      isLoading={isLoading}
-                    />
-                  </Row>
-                </>
-              )}
-            </AccountsContext.Consumer>
-          </AccountsProvider>
-        </Layout.Content>
-      </Layout>
-    )
-  }
-}
+                </Row>
+                <Row>
+                  <ListOfAccounts
+                    accounts={state.accounts}
+                    isLoading={state.isLoading}
+                  />
+                </Row>
+              </>
+            )}
+          </AccountsContext.Consumer>
+        </AccountsProvider>
+      </Layout.Content>
+    </Layout>
+  )
+};
 
 export default Accounts;

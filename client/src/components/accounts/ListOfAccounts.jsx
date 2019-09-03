@@ -1,82 +1,56 @@
 import { Card, Col, List, Row, Skeleton } from 'antd';
-import React, { Component } from 'react';
+import React from 'react';
 
 import AddAccount from './AddAccount';
-import { AccountsContext } from './AccountsProvider';
+import { formatAccounts } from '../../utils/accounts/accounts';
 import './ListOfAccounts.css';
 
-class ListOfAccounts extends Component {
-  render() {
-    const credit = formatAccounts('credit', this.props.accounts);
-    const depository = formatAccounts('depository', this.props.accounts);
+const ListOfAccounts = ({ accounts, isLoading }) => {
+  const credit = formatAccounts('credit', accounts);
+  const depository = formatAccounts('depository', accounts);
 
-    const header = (
-      <Row>
-        <Col span={18} align="left">
-          <h2 className="ant-typography">All Accounts</h2>
+  const header = (
+    <Row>
+      <Col span={18} align="left">
+        <h2 className="ant-typography">All Accounts</h2>
+      </Col>
+      <Col span={6} align="right">
+          <AddAccount />
+      </Col>
+    </Row>
+  );
+
+  return (
+    <Card id="all-accounts" bordered={false} title={header}>
+      {isLoading
+        ? <Skeleton active paragraph={{ rows: 6 }} />
+        : <Col span={24}>
+          <Card bordered={false} id="credit" title={<h2>Credit</h2>}>
+            <List
+              itemLayout="horizontal"
+              dataSource={credit}
+              renderItem={item => (
+                <List.Item>
+                  <List.Item.Meta title={item} />
+                </List.Item>
+              )}
+            />
+          </Card>
+          <Card bordered={false} id="depository" title={<h2>Depository</h2>}>
+            <List
+              itemLayout="horizontal"
+              dataSource={depository}
+              renderItem={item => (
+                <List.Item>
+                  <List.Item.Meta title={item} />
+                </List.Item>
+              )}
+            />
+          </Card>
         </Col>
-        <Col span={6} align="right">
-          <AccountsContext.Consumer>
-            {context => <AddAccount onSuccess={context.getAccounts} />}
-          </AccountsContext.Consumer>
-        </Col>
-      </Row>
-    );
-
-    return (
-      <Card id="all-accounts" bordered={false} title={header}>
-        {this.props.isLoading
-          ? <Skeleton active paragraph={{ rows: 6 }} />
-          : <Col span={24}>
-              <Card bordered={false} id="credit" title={<h2>Credit</h2>}>
-                <List
-                  itemLayout="horizontal"
-                  dataSource={credit}
-                  renderItem={item => (
-                    <List.Item>
-                      <List.Item.Meta title={item} />
-                    </List.Item>
-                  )}
-                />
-              </Card>
-              <Card bordered={false} id="depository" title={<h2>Depository</h2>}>
-                <List
-                  itemLayout="horizontal"
-                  dataSource={depository}
-                  renderItem={item => (
-                    <List.Item>
-                      <List.Item.Meta title={item} />
-                    </List.Item>
-                  )}
-                />
-              </Card>
-            </Col>
-        }
-      </Card>
-    );
-  }
-}
-
-// generates format for accounts in allAccounts that match type
-function formatAccounts(type, allAccounts) {
-  const accounts = [];
-  for (let i = 0; i < allAccounts.length; i++) {
-    const account = allAccounts[i];
-    if (account.type === type) {
-      const balance = account.balances.current;
-      accounts.push(
-        <Row type="flex" justify="space-around" align="middle">
-          <Col span={18} align="left">
-            <p>{account.official_name}</p>
-          </Col>
-          <Col span={6} align="right">
-            <p id="balance">$ {balance.toFixed(2)}</p>
-          </Col>
-        </Row>
-      );
-    }
-  }
-  return accounts;
-}
+      }
+    </Card>
+  )
+};
 
 export default ListOfAccounts;
