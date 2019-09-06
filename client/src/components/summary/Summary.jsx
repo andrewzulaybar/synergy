@@ -6,7 +6,7 @@ import './Summary.css';
 
 const Summary = ({ amount, percent, title, isLoading }) => {
   let icon, styles;
-  if (percent) {
+  if (percent !== undefined) {
     if (percent > 0) {
       styles = { color: green[3] };
       icon = <Icon type="caret-up" style={styles} />;
@@ -32,7 +32,7 @@ const Summary = ({ amount, percent, title, isLoading }) => {
                 <h1 className="amount">$ {amount}</h1>
               </Col>
             </Row>
-            {percent &&
+            {percent !== undefined &&
               <Row className="percent-icon">
                 {icon}
                 <h4 className="percent" style={styles}>{percent} %</h4>
