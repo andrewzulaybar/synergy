@@ -65,7 +65,7 @@ PLAID_PUBLIC_KEY='public-key'
 PLAID_SECRET_KEY='development-secret-key'
 ```
 
-7. Run ```npm client-server-install``` to install dependencies.
+7. Run ```npm run client-server-install``` to install dependencies.
 
 8. Start the server with ```npm run dev```, and then open up http://localhost:3000.
 
