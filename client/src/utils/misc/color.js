@@ -12,7 +12,6 @@ const lineChart = {
  * Doughnut chart colors.
  */
 const doughnutChart = {
-  // #5f7fd9, #6891e5, #74a3f0, #81aff4, #90bbf7, #9fc7fa, #b0cff7, #c1d8f4, );
   colors: [
     'rgba(98, 107, 206, 0.7)',
     'rgba(104, 145, 229, 0.7)',

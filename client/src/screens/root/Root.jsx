@@ -1,12 +1,27 @@
 import { Layout } from 'antd';
 import React from 'react';
+import Loadable from 'react-loadable';
 import { BrowserRouter, Route } from 'react-router-dom';
 import 'antd/dist/antd.css';
 
-import Accounts from '../accounts/Accounts';
-import Home from '../home/Home';
-import Sidebar from '../sidebar/Sidebar';
+import Loading from './Loading';
+import './Root.css';
 import '../sidebar/Sidebar.css';
+
+const Sidebar = Loadable({
+  loader: () => import('../sidebar/Sidebar'),
+  loading: Loading,
+});
+
+const Home = Loadable({
+  loader: () => import('../home/Home'),
+  loading: () => { return null },
+});
+
+const Accounts = Loadable({
+  loader: () => import('../accounts/Accounts'),
+  loading: () => { return null },
+});
 
 const Root = () => {
   return (

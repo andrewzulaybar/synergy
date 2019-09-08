@@ -43,3 +43,13 @@ div.ant-card-body {
 .ant-skeleton {
     padding: 0;
 }
+
+/* loading spinner */
+.ant-spin-dot {
+    color: rgba(104, 145, 229, 0.7);
+    font-size: 5em;
+    left: 50%;
+    top: 50%;
+    position: fixed;
+    transform: translate(-50%, -50%);
+}
